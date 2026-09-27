@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pdftotext -layout \"main \\(10\\).pdf\" /tmp/claude-1000/-home-seal-Downloads-thuc-t-p/6a3ab2fc-018d-4e04-9cc3-bf2cbf72e6d8/scratchpad/report.txt2)",
+      "Bash(make all *)",
+      "Bash(pkill -f 'build/bin/apd')",
+      "Bash(chmod +x tests/run_tests.sh scripts/apply_profile.sh demos/02-basic-c/build_stages.sh)",
+      "Bash(make apps *)",
+      "Bash(sh tests/run_tests.sh)"
+    ]
+  }
+}

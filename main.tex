@@ -1,0 +1,1560 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T5]{fontenc}
+\usepackage[vietnamese]{babel}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.7\baselineskip}
+\setlength{\emergencystretch}{3em}
+
+\hypersetup{colorlinks=true,linkcolor=blue!60!black,urlcolor=blue!60!black}
+\newcommand{\code}[1]{\texttt{#1}}
+
+% ---- Dinh dang khoi ket qua chay chuong trinh ----
+\definecolor{runbg}{gray}{0.96}
+\definecolor{runrule}{gray}{0.75}
+\renewcommand{\lstlistingname}{Kết quả}
+\lstdefinestyle{run}{
+  basicstyle=\ttfamily\scriptsize,
+  backgroundcolor=\color{runbg},
+  frame=leftline,
+  rulecolor=\color{runrule},
+  framesep=6pt,
+  xleftmargin=10pt,
+  breaklines=true,
+  breakatwhitespace=false,
+  columns=flexible,
+  keepspaces=true,
+  showstringspaces=false,
+  captionpos=b,
+  abovecaptionskip=4pt,
+  aboveskip=10pt,
+  belowskip=10pt,
+}
+\lstset{style=run}
+
+\begin{document}
+\raggedright
+\pagenumbering{gobble}
+
+\begin{titlepage}
+\begin{center}
+{\fontsize{13}{16}\bfseries ĐẠI HỌC BÁCH KHOA\\ ĐẠI HỌC QUỐC GIA THÀNH PHỐ HỒ CHÍ MINH\relax}
+
+{\fontsize{12}{15}\bfseries KHOA KHOA HỌC VÀ KỸ THUẬT MÁY TÍNH\relax}
+
+\vspace{0.7cm}
+\IfFileExists{prism-uploads/01_logobachkhoasang.png}{%
+  \includegraphics[width=0.28\textwidth]{prism-uploads/01_logobachkhoasang.png}}{%
+  \vspace{2.4cm}}
+
+\vspace{0.8cm}
+\noindent\rule{0.78\textwidth}{0.4pt}
+
+\vspace{0.8cm}
+{\fontsize{12}{15}\bfseries BÁO CÁO THỰC TẬP\relax}
+\vspace{0.5cm}
+
+{\fontsize{12}{15}\bfseries Đơn vị thực tập: Viettel High Tech\relax}
+
+\vfill
+
+\begin{flushleft}
+\hspace{0.12\textwidth}\begin{tabular}{ll}
+\textbf{Sinh viên thực hiện:} & Author Name \\
+\textbf{Mã số sinh viên:} & ................................ \\
+\textbf{Lớp:} & ................................ \\
+\textbf{Khoa:} & Khoa học và Kỹ thuật Máy tính \\
+\textbf{Giảng viên hướng dẫn:} & ................................ \\
+\textbf{Người hướng dẫn tại đơn vị:} & ................................ \\
+\end{tabular}
+\end{flushleft}
+
+\vfill
+
+{\fontsize{12}{15}\bfseries Thành phố Hồ Chí Minh, \today\relax}
+\end{center}
+\end{titlepage}
+
+\pagenumbering{arabic}
+\tableofcontents
+\newpage
+
+\section{Mở đầu}
+
+\subsection{Bối cảnh thực tập}
+
+Embedded Linux là một hướng phát triển quan trọng trong lĩnh vực hệ thống nhúng hiện đại. Khác với lập trình ứng dụng thông thường, lập trình trên nền tảng Embedded Linux yêu cầu người học hiểu đồng thời cả phần mềm hệ thống, ngôn ngữ C, kiến trúc Linux và một số đặc điểm phần cứng của thiết bị. Một ứng dụng nhúng chạy trên Linux không tồn tại độc lập, mà phụ thuộc vào quá trình biên dịch, thư viện hệ thống, kernel, driver, root filesystem, bootloader và cơ chế quản lý tài nguyên của hệ điều hành.
+
+Trong quá trình thực tập, việc học Basic C và Linux Programming được xem là bước chuẩn bị bắt buộc. Basic C giúp người học hiểu cách source code được chuyển thành chương trình thực thi, cách bộ nhớ của chương trình được tổ chức và cách thư viện được liên kết. Linux Programming giúp người học hiểu cách chương trình user space tương tác với kernel thông qua system call, cách Linux quản lý process, thread, bộ nhớ ảo, signal và các cơ chế giao tiếp liên tiến trình. Những kiến thức này không chỉ phục vụ việc viết chương trình C trên Linux, mà còn là cơ sở để phân tích lỗi, tối ưu tài nguyên và xây dựng phần mềm ổn định trên thiết bị nhúng.
+
+\subsection{Mục tiêu và phạm vi báo cáo}
+
+Mục tiêu của báo cáo là hệ thống hóa lại các nội dung đã tìm hiểu trong giai đoạn thực tập, đồng thời liên hệ chúng với bài toán Embedded Linux. Báo cáo hướng đến việc giải thích bản chất thay vì chỉ liệt kê khái niệm. Vì vậy, mỗi phần đều được trình bày theo mạch từ lý thuyết cơ bản, vai trò trong Linux, đến ý nghĩa khi áp dụng vào hệ thống nhúng.
+
+Phạm vi báo cáo tập trung vào nền tảng Basic C, Linux Programming, kiến trúc UNIX/Linux kernel, virtual memory, process, thread, IPC, signal, device driver, socket programming, OpenWrt, ứng dụng trên MediaTek AP 6, boot sequence và một số ghi nhận về văn hóa công ty trong quá trình thực tập. Phần device driver trình bày các nguyên lý và đường đi dữ liệu quan trọng, chưa đi sâu đến mức triển khai hoàn chỉnh một driver cho board cụ thể. Các nội dung porting board, xây dựng root filesystem bằng Buildroot/Yocto hoặc tối ưu kernel được xem là hướng phát triển tiếp theo.
+
+Điểm khác biệt của bản báo cáo này so với một bản tổng hợp lý thuyết thuần túy là mỗi khẳng định quan trọng đều được kiểm chứng bằng một chương trình chạy được. Toàn bộ kết quả in trong báo cáo là kết quả chạy thật, được thu thập tự động và trích lại nguyên văn, không phải kết quả mô tả theo trí nhớ.
+
+\subsection{Chương trình thực nghiệm đi kèm báo cáo}
+
+Để tránh tình trạng học lý thuyết mà không hình dung được hệ thống thật, trong quá trình thực tập sinh viên đã xây dựng một dự án mã nguồn đi kèm báo cáo, đặt tại thư mục \code{ap6-embedded-linux-project}. Dự án được tổ chức theo hai lớp bổ sung cho nhau.
+
+Lớp thứ nhất gồm mười hai chương trình demo nhỏ, mỗi chương trình minh họa đúng một chương lý thuyết của báo cáo: các giai đoạn biên dịch, memory layout, system call, virtual memory, process, thread, ba cơ chế IPC, signal, socket TCP và socket UDP. Mục tiêu của lớp này là tách từng khái niệm ra để quan sát riêng, ví dụ chỉ nhìn hiện tượng race condition hoặc chỉ nhìn hiện tượng demand paging.
+
+Lớp thứ hai là một ứng dụng tích hợp mô phỏng phần mềm quản lý một thiết bị Access Point, gồm daemon \code{apd}, công cụ dòng lệnh \code{apctl}, chương trình giám sát \code{apmon} và một character driver \code{ap6sim} phía kernel. Ở lớp này, các khái niệm không còn đứng riêng lẻ mà phối hợp với nhau trong một chương trình duy nhất: daemon dùng \code{epoll} trên Unix domain socket và TCP socket để nhận lệnh, dùng một thread riêng sinh telemetry, dùng shared memory có mutex process-shared để chia sẻ số liệu với process khác, dùng \code{fork} và \code{exec} để chạy script áp cấu hình, dùng \code{sigaction} với kỹ thuật self-pipe để xử lý \code{SIGHUP}, \code{SIGTERM} và \code{SIGCHLD}, và dùng \code{ioctl} để nói chuyện với driver khi driver có mặt.
+
+\begin{center}
+\begin{tikzpicture}[
+    every node/.style={draw, rounded corners, align=center, minimum height=0.75cm},
+    arrow/.style={-{Latex[length=3mm]}, thick}
+]
+\node (apctl) [minimum width=3.0cm] {\code{apctl}\\(CLI)};
+\node (apd) [right=3.0cm of apctl, minimum width=3.6cm] {\code{apd}\\(daemon: epoll + thread)};
+\node (apmon) [below=1.6cm of apctl, minimum width=3.0cm] {\code{apmon}\\(telemetry)};
+\node (drv) [below=1.6cm of apd, minimum width=3.6cm] {\code{/dev/ap6sim}\\(kernel module)};
+\node (script) [below=1.5cm of drv, minimum width=3.6cm] {\code{apply\_profile.sh}\\(iwpriv / uci)};
+\draw[arrow] (apctl) -- node[draw=none,above,font=\small]{Unix socket / TCP} (apd);
+\draw[arrow] (apd) -- node[draw=none,right,font=\small]{ioctl} (drv);
+\draw[arrow] (apd.south west) -- node[draw=none,above,sloped,font=\small]{shared memory} (apmon.north east);
+\draw[arrow] (drv) -- node[draw=none,right,font=\small]{fork + exec} (script);
+\end{tikzpicture}
+\end{center}
+
+Môi trường chạy thử được ghi lại như sau: kernel \code{Linux 7.0.0-28-generic}, kiến trúc \code{x86\_64}, trình biên dịch \code{gcc 13.3.0}. Toàn bộ chương trình được biên dịch với \code{-Wall -Wextra} và không phát sinh cảnh báo. Kết quả trích trong các mục tiếp theo được sinh lại bằng \code{sh scripts/collect\_results.sh} và lưu trong \code{docs/ket-qua-chay.txt}.
+
+Cần nói rõ giới hạn của phần thực nghiệm: các chương trình được chạy trên máy Linux x86\_64, không phải trên board MediaTek AP 6 thật. Vì vậy control path xuống phần cứng Wi-Fi được thay bằng một character driver mô phỏng, và khi driver chưa được nạp thì daemon tự chuyển sang chế độ \code{backend=simulated}. Các cơ chế được kiểm chứng, gồm system call, virtual memory, process, thread, IPC, signal, socket và vòng đời module kernel, là cơ chế chung của Linux nên vẫn giữ nguyên ý nghĩa khi chuyển sang board ARM; phần phụ thuộc phần cứng thật như thanh ghi radio, DMA ring hoặc firmware Wi-Fi thì chưa được kiểm chứng trong báo cáo này.
+
+\section{Cơ sở lý thuyết về Basic C}
+
+\subsection{Quá trình hình thành chương trình C}
+
+Một chương trình C không được CPU thực thi trực tiếp từ file mã nguồn. Trước khi chạy được trên hệ thống, mã nguồn phải trải qua một chuỗi xử lý gồm tiền xử lý, biên dịch, hợp dịch và liên kết. Chuỗi này thường được che giấu phía sau một lệnh đơn giản như \code{gcc hello.c -o hello}, nhưng về bản chất mỗi giai đoạn đảm nhiệm một vai trò riêng.
+
+Ở giai đoạn tiền xử lý, bộ tiền xử lý \code{cpp} xử lý các chỉ thị bắt đầu bằng ký tự \code{\#}. Các chỉ thị như \code{\#include}, \code{\#define}, \code{\#ifdef} được mở rộng để tạo ra file trung gian. Ví dụ, lệnh \code{gcc -E test\_pp.c -o test\_pp.i} cho phép quan sát kết quả sau tiền xử lý. Đối với Embedded Linux, giai đoạn này đặc biệt quan trọng vì nhiều dự án dùng macro để bật tắt tính năng, chọn cấu hình phần cứng hoặc phân biệt môi trường build cho từng board.
+
+Sau tiền xử lý, compiler dịch file trung gian sang mã assembly. Assembly là dạng biểu diễn gần với kiến trúc CPU hơn so với ngôn ngữ C. Việc quan sát file assembly bằng lệnh như \code{gcc -S hello.i -o hello.s} giúp người học hiểu cách lệnh C được ánh xạ thành thao tác ở mức thấp, từ đó có thêm cơ sở khi phân tích hiệu năng, stack frame hoặc calling convention.
+
+Tiếp theo, assembler dịch mã assembly thành object file. Object file chứa mã máy dạng relocatable, nghĩa là nó đã có mã nhị phân nhưng chưa phải chương trình hoàn chỉnh. Một chương trình thực tế thường gồm nhiều file nguồn, nhiều object file và có thể phụ thuộc vào thư viện bên ngoài. Vì vậy, linker cần kết hợp các object file, giải quyết symbol và tạo ra file thực thi cuối cùng ở định dạng phù hợp, thường là ELF trên Linux.
+
+\begin{center}
+\begin{tikzpicture}[
+    node distance=1.15cm,
+    every node/.style={draw, rounded corners, align=center, minimum width=4.8cm, minimum height=0.75cm},
+    arrow/.style={-{Latex[length=3mm]}, thick}
+]
+\node (c) {Source code\\\code{hello.c}};
+\node (i) [below=of c] {Preprocessing\\\code{hello.i}};
+\node (s) [below=of i] {Compilation\\\code{hello.s}};
+\node (o) [below=of s] {Assembly\\\code{hello.o}};
+\node (exe) [below=of o] {Linking\\Executable/ELF};
+\draw[arrow] (c) -- (i);
+\draw[arrow] (i) -- (s);
+\draw[arrow] (s) -- (o);
+\draw[arrow] (o) -- (exe);
+\end{tikzpicture}
+\end{center}
+
+\subsection{Liên kết tĩnh và liên kết động}
+
+Liên kết là giai đoạn có ảnh hưởng trực tiếp đến cách chương trình được phân phối và chạy trên hệ thống. Với liên kết tĩnh, mã thư viện cần thiết được đưa trực tiếp vào file thực thi. Cách này làm chương trình ít phụ thuộc hơn vào môi trường runtime, nhưng kích thước file thực thi thường lớn. Trong hệ thống nhúng có root filesystem tối giản, static linking đôi khi hữu ích vì chương trình có thể chạy ngay cả khi thiếu một số shared library.
+
+Ngược lại, liên kết động chỉ lưu thông tin tham chiếu đến thư viện dùng chung. Khi chương trình được chạy, dynamic loader sẽ nạp các shared library cần thiết vào bộ nhớ. Cách này giúp giảm kích thước executable, tiết kiệm bộ nhớ khi nhiều process dùng chung thư viện và thuận tiện cho việc cập nhật thư viện. Tuy nhiên, chương trình sẽ phụ thuộc vào việc thư viện đúng phiên bản có tồn tại trong root filesystem hay không. Vì vậy, khi phát triển Embedded Linux, lập trình viên cần hiểu rõ lựa chọn linking để tránh lỗi thiếu thư viện khi triển khai lên board thật.
+
+\subsection{Kết quả chạy: tách rời bốn giai đoạn biên dịch}
+
+Để kiểm chứng phần lý thuyết trên, script \code{demos/02-basic-c/build\_stages.sh} chạy lại từng giai đoạn một cách tường minh thay vì gọi \code{gcc} một lần. Chương trình thử nghiệm gồm \code{hello.c} và một thư viện nhỏ \code{mathlib.c} được đóng gói hai lần, một lần thành thư viện tĩnh \code{libmath.a} và một lần thành thư viện động \code{libmath.so}.
+
+\begin{lstlisting}[caption={Giai đoạn tiền xử lý và biên dịch (\code{make stages})}]
+[1/6] Tien xu ly: gcc -E  (mo rong #include, #define, #ifdef)
+  hello.c : 17 dong
+  hello.i : 837 dong  <- da chen noi dung stdio.h
+  Kiem tra macro GREETING da duoc thay the:
+    832: printf("%s\n", "Xin chao tu Embedded Linux");
+[2/6] Bien dich: gcc -S  (C -> assembly)
+  Vai dong assembly dau tien cua main:
+    main:
+    .LFB0:
+        .cfi_startproc
+        endbr64
+        pushq   %rbp
+        movq    %rsp, %rbp
+        subq    $16, %rsp
+        movl    $7, -8(%rbp)
+        movl    $5, -4(%rbp)
+\end{lstlisting}
+
+Kết quả cho thấy rất rõ vai trò của tiền xử lý: file nguồn 17 dòng nở ra thành 837 dòng sau khi \code{stdio.h} được chèn vào, và macro \code{GREETING} đã bị thay bằng chuỗi hằng ngay trong lời gọi \code{printf}. Ở bước biên dịch, hai biến cục bộ được cấp phát bằng cách trừ \code{\$16} vào \code{\%rsp}, tức nằm trên stack frame của \code{main}; đây chính là hình ảnh cụ thể của vùng stack sẽ được mô tả ở mục sau.
+
+\begin{lstlisting}[caption={Object file và symbol chưa giải quyết}]
+[3/6] Hop dich: gcc -c  (assembly -> object file relocatable)
+    ./out/hello.o: ELF 64-bit LSB relocatable, x86-64, version 1 (SYSV), not stripped
+  Symbol chua duoc giai quyet (U = undefined, can linker):
+                     U cong
+                     U mathlib_version
+                     U nhan
+                     U printf
+                     U puts
+\end{lstlisting}
+
+Ở bước này, \code{hello.o} đã là mã máy nhưng chưa chạy được: bốn symbol \code{cong}, \code{nhan}, \code{mathlib\_version} và \code{printf} vẫn ở trạng thái \code{U}, nghĩa là undefined. Đây chính là dạng lỗi \code{undefined reference} mà lập trình viên hay gặp khi quên thêm file nguồn hoặc quên tùy chọn \code{-l}: lỗi thuộc giai đoạn linking chứ không phải giai đoạn biên dịch.
+
+\begin{lstlisting}[caption={So sánh liên kết tĩnh và liên kết động}]
+[4/6] Lien ket TINH: dua ma thu vien vao thang trong file thuc thi
+  Kich thuoc: 16136 byte
+[5/6] Lien ket DONG: chi luu tham chieu, nap luc chay
+  Kich thuoc: 16104 byte
+  Thu vien can khi chay (ldd):
+        linux-vdso.so.1
+        libmath.so => .../demos/02-basic-c/out/libmath.so
+        libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6
+        /lib64/ld-linux-x86-64.so.2
+  -> tren rootfs nhung, thieu libmath.so la chuong trinh khong chay duoc
+[6/6] So sanh voi -static toan phan (khong can shared library nao)
+  dong (shared)      :    16104 byte
+  tinh (libmath.a)   :    16136 byte
+  tinh toan phan     :   785584 byte
+\end{lstlisting}
+
+Ba con số ở bước cuối minh họa đúng sự đánh đổi đã trình bày ở phần lý thuyết. Khi chỉ liên kết tĩnh thư viện nhỏ \code{libmath.a}, kích thước gần như không đổi so với bản động, chênh lệch 32 byte. Nhưng khi liên kết tĩnh toàn phần, tức mang cả \code{libc} vào trong file thực thi, kích thước tăng từ 16 KB lên khoảng 785 KB, gấp gần 49 lần. Trên một thiết bị nhúng có vài megabyte flash, việc liên kết tĩnh toàn phần cho từng chương trình sẽ nhanh chóng làm đầy phân vùng; ngược lại, bản liên kết động chỉ chạy được nếu \code{libmath.so} thực sự có mặt trong root filesystem của board. Đây là lý do khi triển khai lên OpenWrt, package phải khai báo đầy đủ phụ thuộc thư viện.
+
+\begin{lstlisting}[caption={Các section chính trong file ELF và kết quả chạy}]
+Cau truc ELF (readelf -h) va cac section chinh:
+      Type:                              DYN (Position-Independent Executable file)
+      Machine:                           Advanced Micro Devices X86-64
+      Entry point address:               0x10e0
+      [16] .text             PROGBITS         00000000000010e0  000010e0
+      [18] .rodata           PROGBITS         0000000000002000  00002000
+      [25] .data             PROGBITS         0000000000004000  00003000
+      [26] .bss              NOBITS           0000000000004010  00003010
+Chay thu ban dong:
+    Xin chao tu Embedded Linux
+    cong(7, 5)   = 12
+    nhan(7, 5)   = 35
+    thu vien       = mathlib 1.0
+\end{lstlisting}
+
+Bảng section của ELF cũng cho thấy một chi tiết đáng chú ý: \code{.bss} có kiểu \code{NOBITS}, nghĩa là section này không chiếm chỗ trong file trên đĩa mà chỉ khai báo kích thước để kernel cấp phát và xóa về 0 khi nạp chương trình. Nhận xét này sẽ được kiểm chứng trực tiếp ở mục tiếp theo.
+
+\section{Memory layout của chương trình C}
+
+\subsection{Không gian địa chỉ ảo của process}
+
+Memory layout của một chương trình Linux không nên được hiểu là cách chương trình chiếm trực tiếp RAM vật lý. Thực tế, mỗi process hoạt động trong một không gian địa chỉ ảo riêng. Không gian này được hệ điều hành và phần cứng MMU ánh xạ sang bộ nhớ vật lý khi cần thiết. Cơ chế này tạo cảm giác mỗi process có một vùng nhớ liên tục và độc lập, đồng thời giúp kernel bảo vệ process này khỏi việc truy cập trái phép vào vùng nhớ của process khác.
+
+Trong không gian địa chỉ ảo, chương trình thường được chia thành nhiều vùng. Vùng text chứa mã lệnh thực thi của chương trình. Vùng dữ liệu chỉ đọc chứa hằng số. Vùng data chứa biến toàn cục hoặc biến static đã được khởi tạo. Vùng BSS chứa biến toàn cục hoặc static chưa khởi tạo hoặc khởi tạo bằng 0. Heap được dùng cho cấp phát động thông qua các hàm như \code{malloc} và \code{free}. Stack được dùng cho biến cục bộ, tham số hàm, địa chỉ trả về và stack frame. Ngoài ra còn có vùng memory mapping dùng để ánh xạ file, shared library hoặc shared memory.
+
+Việc hiểu memory layout giúp giải thích nhiều lỗi phổ biến trong C. Nếu chương trình truy cập con trỏ sai, ghi vượt mảng hoặc dùng vùng nhớ đã giải phóng, kernel có thể phát hiện vi phạm quyền truy cập và gửi \code{SIGSEGV}. Nếu chương trình cấp phát heap nhưng không giải phóng, lỗi memory leak có thể xuất hiện, đặc biệt nguy hiểm trong hệ thống nhúng chạy liên tục trong thời gian dài. Nếu hàm đệ quy quá sâu hoặc cấp phát biến cục bộ quá lớn, stack overflow có thể làm chương trình dừng bất thường.
+
+\subsection{Thời điểm compile-time, load-time và run-time}
+
+Có thể nhìn chương trình ở ba thời điểm khác nhau. Tại compile-time và link-time, compiler kiểm tra cú pháp, dịch source code thành object code, còn linker kết hợp các object file và thư viện để tạo executable. Tại load-time, khi người dùng chạy chương trình, OS loader đọc file thực thi từ thiết bị lưu trữ và ánh xạ các segment vào không gian địa chỉ ảo của process. Tại run-time, chương trình thực sự thực thi hàm \code{main}, cấp phát bộ nhớ, gọi hàm, xử lý dữ liệu, tạo process hoặc thread và gọi system call để yêu cầu dịch vụ từ kernel.
+
+Sự phân biệt này rất quan trọng trong quá trình debug. Một lỗi unresolved symbol thường thuộc giai đoạn linking. Một lỗi thiếu shared library thường xuất hiện tại load-time. Một lỗi segmentation fault, deadlock hoặc race condition thường xuất hiện tại run-time. Đối với Embedded Linux, việc xác định lỗi thuộc giai đoạn nào giúp rút ngắn thời gian phân tích khi chương trình chạy đúng trên máy phát triển nhưng lỗi trên board mục tiêu.
+
+\subsection{Kết quả chạy: in địa chỉ từng vùng nhớ của chính process}
+
+Chương trình \code{demos/03-memory-layout/memlayout.c} khai báo biến ở tất cả các vùng đã nêu, sau đó in ra địa chỉ thật của chúng trong không gian địa chỉ ảo của chính nó.
+
+\begin{lstlisting}[caption={Địa chỉ các vùng nhớ của một process đang chạy}]
+PID = 499693
+Dia chi tang dan tu duoi len (text -> data -> heap -> stack)
+
+text  : ham main()                 0x61f4593a51a0
+text  : ham ham_vi_du()            0x61f4593a5510
+rodata: chuoi hang                 0x61f4593a6075
+data  : g_data_init                0x61f4593a8030 (= 42)
+data  : s_static_init              0x61f4593a8010
+bss   : g_bss_uninit               0x61f4593a9060 (= 0)
+bss   : s_static_bss               0x61f4593a9064
+bss   : g_bss_buf[4096]            0x61f4593a8060
+heap  : malloc(64)                 0x61f4635802a0
+mmap  : malloc(4MB)                0x761f0a3ff010
+stack : bien cuc bo                0x7fff0c03c7c4
+stack : tham so argv               0x7fff0c03c928
+stack : bien moi truong            0x7fff0c03d9bd
+\end{lstlisting}
+
+Thứ tự địa chỉ khớp với mô hình lý thuyết: text nằm thấp nhất, tiếp đến rodata, data, bss, rồi heap, và stack nằm ở vùng địa chỉ cao. Ba quan sát cụ thể đáng chú ý.
+
+Thứ nhất, \code{g\_bss\_uninit} in ra giá trị 0 dù chương trình không hề khởi tạo biến này. Điều đó xác nhận nhận xét ở mục 2.3: \code{.bss} là section kiểu \code{NOBITS}, không tốn byte nào trong file ELF, và chính kernel là bên chịu trách nhiệm xóa vùng nhớ về 0 lúc nạp chương trình. Đây là lý do không nên dựa vào giá trị mặc định của biến cục bộ trên stack, vốn không được xóa, trong khi biến toàn cục thì luôn bằng 0.
+
+Thứ hai, hai lời gọi \code{malloc} cho ra hai địa chỉ ở hai vùng hoàn toàn khác nhau. Khối 64 byte nằm ngay sau heap ở \code{0x61f463580...}, còn khối 4 MB lại nằm ở \code{0x761f0a3ff...}, cách rất xa. Nguyên nhân là glibc chuyển sang \code{mmap} khi kích thước vượt ngưỡng \code{mmap\_threshold} thay vì mở rộng heap bằng \code{brk}. Chi tiết này giải thích vì sao trên thiết bị nhúng, một chương trình cấp phát nhiều khối lớn rồi giải phóng có thể trả bộ nhớ lại cho hệ điều hành ngay, trong khi nhiều khối nhỏ thì thường vẫn nằm trong heap của process.
+
+Thứ ba, khoảng cách giữa heap và stack cho thấy phần lớn không gian địa chỉ ảo ở giữa hoàn toàn trống. Không gian ảo là tài nguyên rẻ; RAM vật lý mới là tài nguyên đắt, và mục 6 sẽ đo trực tiếp sự khác biệt đó.
+
+\begin{lstlisting}[caption={Trích \code{/proc/self/maps} của cùng process}]
+61f4593a4000-61f4593a5000 r--p  .../build/demos/memlayout
+61f4593a5000-61f4593a6000 r-xp  .../build/demos/memlayout
+61f4593a6000-61f4593a7000 r--p  .../build/demos/memlayout
+61f4593a8000-61f4593a9000 rw-p  .../build/demos/memlayout
+61f463580000-61f4635a1000 rw-p  [heap]
+761f0a800000-761f0a828000 r--p  /usr/lib/x86_64-linux-gnu/libc.so.6
+761f0a828000-761f0a9b0000 r-xp  /usr/lib/x86_64-linux-gnu/libc.so.6
+761f0a9b0000-761f0a9ff000 r--p  /usr/lib/x86_64-linux-gnu/libc.so.6
+761f0aa03000-761f0aa05000 rw-p  /usr/lib/x86_64-linux-gnu/libc.so.6
+7fff0c01d000-7fff0c03f000 rw-p  [stack]
+\end{lstlisting}
+
+Bảng ánh xạ trong \code{/proc/self/maps} cho thấy quyền truy cập của từng vùng, và đây chính là cơ chế bảo vệ mà kernel áp lên process. Vùng chứa mã lệnh có quyền \code{r-xp}, đọc và thực thi nhưng không ghi được; vùng chứa hằng số có quyền \code{r--p}; chỉ vùng data, heap và stack mới có quyền ghi \code{rw-p}. Vì vậy một câu lệnh ghi vào chuỗi hằng sẽ bị MMU chặn và kernel gửi \code{SIGSEGV}, đúng như nhận xét mà chương trình in ra. Cũng có thể thấy \code{libc.so.6} được ánh xạ thành nhiều vùng riêng biệt với quyền khác nhau, minh họa cho phần shared library ở mục 6.5: chỉ vùng \code{r-xp} chứa mã lệnh mới được chia sẻ vật lý giữa các process.
+
+\section{Tổng quan về Linux Programming}
+
+\subsection{Kiến trúc GNU/Linux và ranh giới user space -- kernel space}
+
+Linux kernel là phần lõi của hệ điều hành. Kernel chịu trách nhiệm quản lý CPU, bộ nhớ, filesystem, network stack, thiết bị ngoại vi và driver. Phía trên kernel là user space, nơi các ứng dụng người dùng và thư viện như glibc hoạt động. Các chương trình do lập trình viên viết thường nằm trong user space và không được phép truy cập trực tiếp tài nguyên phần cứng hoặc vùng nhớ của kernel.
+
+Sự tách biệt giữa user space và kernel space là cơ chế bảo vệ quan trọng. Nếu mọi chương trình đều có thể truy cập trực tiếp phần cứng hoặc bộ nhớ kernel, một lỗi nhỏ trong ứng dụng cũng có thể làm treo toàn bộ hệ thống. Nhờ cơ chế phân quyền của CPU và kernel, lỗi trong một process thường chỉ làm process đó dừng, trong khi phần còn lại của hệ thống vẫn tiếp tục hoạt động.
+
+\subsection{System call}
+
+Khi chương trình user space cần đọc file, ghi dữ liệu ra thiết bị, tạo process, cấp phát ánh xạ bộ nhớ hoặc giao tiếp mạng, nó phải yêu cầu kernel thực hiện thông qua system call. System call là điểm vào được kiểm soát từ user space xuống kernel space. Khi system call được gọi, CPU chuyển từ user mode sang kernel mode, kernel kiểm tra tham số, thực hiện service routine tương ứng và trả kết quả về chương trình.
+
+Các lời gọi như \code{open}, \code{read}, \code{write}, \code{close}, \code{fork}, \code{exec}, \code{wait}, \code{mmap}, \code{pipe}, \code{socket}, \code{kill} và \code{sigaction} là những ví dụ thường gặp. Trong Embedded Linux, nhiều thiết bị ngoại vi được biểu diễn dưới dạng file trong \code{/dev}. Vì vậy, thao tác đọc ghi file thực chất có thể là thao tác với UART, GPIO, SPI, I2C hoặc một driver thiết bị. Điều này cho thấy Linux Programming là cầu nối trực tiếp giữa ứng dụng C và phần cứng trong hệ thống nhúng.
+
+\subsection{Kết quả chạy: quan sát ranh giới user space và kernel space}
+
+Chương trình \code{demos/04-syscall/syscall\_demo.c} lần lượt so sánh \code{printf} với \code{write}, kiểm tra \code{errno} khi system call thất bại, đọc bốn loại đối tượng khác nhau bằng cùng một cặp \code{open}/\code{read}, và gọi thẳng \code{syscall()} không qua wrapper của thư viện.
+
+\begin{lstlisting}[caption={Kiểm tra lỗi system call và mô hình "everything is a file"}]
+2) Kiem tra loi cua system call
+  open() tra ve -1, errno=2 (No such file or directory)
+  write(fd sai) -> errno=9 (Bad file descriptor)
+
+3) 'Everything is a file' - cung open/read cho nhieu loai
+  /proc/version    : Linux version 7.0.0-28-generic (buildd@lcy02-amd64-004) (x86
+  /proc/uptime     : 48374.71 734109.22
+  /dev/urandom     : c73e398c4ebe9eb1  <- du lieu do driver sinh ra
+
+4) Goi system call truc tiep bang syscall()
+  syscall(SYS_gettid) = 499694 (pid=499694)
+  uname(): Linux 7.0.0-28-generic x86_64
+\end{lstlisting}
+
+Kết quả ở mục 3 là minh chứng trực tiếp cho triết lý sẽ được phân tích kỹ ở mục 5.1. Ba đối tượng \code{/proc/version}, \code{/proc/uptime} và \code{/dev/urandom} không hề là file trên đĩa: hai cái đầu do procfs sinh ra ngay lúc đọc, cái thứ ba do driver sinh số ngẫu nhiên của kernel cung cấp. Vậy mà chương trình user space chỉ dùng đúng một cặp \code{open} và \code{read} cho cả ba. Trên board thật, cùng đoạn mã đó sẽ đọc được \code{/dev/ttyS0}, \code{/dev/i2c-1} hay \code{/dev/spidev0.0} mà không cần thay đổi mô hình lập trình.
+
+\begin{lstlisting}[caption={Thống kê system call bằng \code{strace -c}}]
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+  0.00    0.000000           0         4           read
+  0.00    0.000000           0         4         1 write
+  0.00    0.000000           0         5           close
+  0.00    0.000000           0         8           mmap
+  0.00    0.000000           0         3           mprotect
+  0.00    0.000000           0         3           brk
+  0.00    0.000000           0         1           execve
+  0.00    0.000000           0         1           uname
+  0.00    0.000000           0         1           gettid
+  0.00    0.000000           0         6         1 openat
+------ ----------- ----------- --------- --------- ----------------
+100.00    0.000000           0        51         4 total
+\end{lstlisting}
+
+Bảng thống kê của \code{strace -c} cho thấy toàn bộ chương trình chỉ thực hiện 51 system call, trong đó 4 lời gọi trả về lỗi đúng như chương trình chủ động gây ra để minh họa \code{errno}. Đáng chú ý là số lần \code{write} nhỏ hơn nhiều so với số dòng chương trình in ra: glibc gom nhiều lời gọi \code{printf} vào một buffer ở user space rồi mới đẩy xuống kernel bằng một lần \code{write}. Sự khác biệt giữa lời gọi hàm thư viện và system call thật vì vậy đo được chứ không chỉ nói lý thuyết. Trên thiết bị nhúng, khác biệt này có hai hệ quả thực tế: một là ghi log bằng \code{printf} có thể mất dữ liệu nếu process bị \code{SIGKILL} trước khi buffer được flush, hai là mỗi system call đều tốn chi phí chuyển ngữ cảnh, nên vòng lặp đọc từng byte qua \code{read} sẽ chậm hơn nhiều so với đọc theo khối.
+
+\section{Từ kiến trúc UNIX đến tổ chức Linux Kernel}
+
+\subsection{Hai trụ cột của mô hình UNIX: file và process}
+
+Thiết kế UNIX tổ chức hệ điều hành quanh hai khái niệm trung tâm là file và process. File biểu diễn dữ liệu hoặc một điểm giao tiếp I/O, còn process biểu diễn một chương trình đang có ``đời sống'' trong hệ thống. Cách nhìn này tạo ra một mô hình tương đối thống nhất: ứng dụng mở một đối tượng bằng \code{open}, nhận về file descriptor, sau đó dùng \code{read}, \code{write}, \code{ioctl} hoặc \code{close} để làm việc với đối tượng đó. Đối tượng phía sau có thể là file thường, terminal, pipe, socket hoặc device node.
+
+Điểm quan trọng không phải mọi đối tượng đều giống hệt file trên đĩa, mà là kernel cung cấp một giao diện chung để user space không cần biết toàn bộ chi tiết phần cứng. Trên Embedded Linux, cùng một chương trình C có thể đọc UART qua một file trong \code{/dev}, nhận dữ liệu mạng qua socket và đọc cấu hình từ filesystem bằng những lời gọi hệ thống có cách sử dụng gần nhau. Kết quả chạy ở mục 4.3, nơi cùng một cặp \code{open}/\code{read} phục vụ cả procfs lẫn device node, là minh chứng cụ thể cho nhận định này.
+
+Process là đơn vị mà kernel dùng để phân biệt các chương trình đang chạy, cấp phát không gian địa chỉ, quản lý quyền, lưu trạng thái CPU và theo dõi các tài nguyên đang mở. Khi process gọi system call, kernel thực thi thay mặt process đó trong kernel mode. Kernel không phải một chương trình user space chạy song song với các process; phần lớn hoạt động kernel diễn ra trong ngữ cảnh của process hiện tại hoặc trong ngữ cảnh xử lý interrupt. Cách nhìn này giúp giải thích vì sao một lời gọi \code{read} có thể làm process ngủ, driver xử lý thiết bị, interrupt đánh thức process và system call sau đó mới trả về user space.
+
+\subsection{Phân chia các phân hệ trong kernel}
+
+Kiến trúc UNIX kinh điển có thể được nhìn thành các phân hệ chính gồm system call interface, file subsystem, process control, memory management, scheduler, IPC và hardware control. Linux kế thừa tư tưởng phân chia trách nhiệm này nhưng mở rộng thành một kernel lớn, có tính module và hỗ trợ nhiều kiến trúc CPU, filesystem, network protocol và loại thiết bị.
+
+System call interface là cổng vào có kiểm soát từ user space. Process control quản lý tạo, kết thúc, ngủ, thức và chuyển trạng thái process. Scheduler lựa chọn task nào được sử dụng CPU. Memory management quản lý không gian địa chỉ ảo, page table, page cache và cấp phát bộ nhớ kernel. Filesystem layer quản lý namespace, quyền truy cập và ánh xạ thao tác file xuống filesystem cụ thể. Device driver chuyển yêu cầu trừu tượng của kernel thành thao tác với thanh ghi, buffer, bus và interrupt của phần cứng.
+
+Các phân hệ này không hoạt động độc lập hoàn toàn. Khi ứng dụng đọc một device node, system call interface chuyển yêu cầu xuống VFS, VFS tìm các operation của driver, driver có thể đưa process vào trạng thái ngủ nếu chưa có dữ liệu, interrupt handler ghi nhận dữ liệu đến và đánh thức process, sau đó scheduler cho process tiếp tục. Một thao tác tưởng như đơn giản ở user space vì vậy có thể đi qua nhiều tầng của kernel.
+
+\subsection{File descriptor, file table và inode}
+
+Trong mô hình UNIX, file descriptor chỉ là một số nguyên nhỏ có ý nghĩa trong phạm vi một process. Nó là chỉ số dẫn đến bảng file đang mở của process. Entry tương ứng tiếp tục tham chiếu đến đối tượng file trong kernel, nơi lưu vị trí đọc ghi hiện tại, cờ mở file và các operation được phép thực hiện. Đối với file trên filesystem, đối tượng này liên hệ với inode chứa metadata của file.
+
+Inode không lưu tên file. Nó lưu thông tin như loại file, quyền truy cập, chủ sở hữu, kích thước, số hard link và vị trí dữ liệu. Tên file nằm trong directory entry và được kernel phân giải thành inode khi xử lý pathname. Việc tách tên khỏi inode giải thích một số hành vi đặc trưng của UNIX: nhiều tên có thể trỏ đến cùng một inode, và một file đã bị \code{unlink} vẫn có thể tiếp tục được process đọc nếu file descriptor của nó còn mở. Dữ liệu chỉ thực sự được giải phóng khi không còn directory entry phù hợp và không còn tham chiếu đang mở.
+
+Linux hiện đại đặt một lớp Virtual File System giữa system call và filesystem cụ thể. VFS cho phép \code{open}, \code{read} và \code{write} hoạt động thống nhất trên ext4, tmpfs, procfs, sysfs hoặc device node. Mỗi loại đối tượng cung cấp các operation tương ứng. Điều này đặc biệt quan trọng trong Embedded Linux vì cùng một root filesystem có thể kết hợp filesystem trên flash, filesystem tạm trong RAM, procfs để quan sát kernel và sysfs để biểu diễn device model.
+
+\subsection{Cache dữ liệu và cân bằng giữa hiệu năng với tính nhất quán}
+
+Một nguyên lý quan trọng trong thiết kế UNIX là tránh truy cập thiết bị lưu trữ cho mọi thao tác đọc ghi. Dữ liệu block được giữ trong cache để những lần truy cập sau có thể phục vụ từ RAM. Cơ chế delayed write cho phép kernel trì hoãn một số thao tác ghi và gộp chúng lại, nhờ đó giảm số lần I/O và tăng throughput. Linux hiện đại phát triển ý tưởng này thành page cache thống nhất hơn, nhưng bài toán cơ bản vẫn giống nhau: sử dụng RAM để che độ trễ của thiết bị lưu trữ.
+
+Cache tạo ra đánh đổi giữa hiệu năng và tính bền vững dữ liệu. Khi \code{write} trả về, dữ liệu có thể mới chỉ nằm trong RAM và chưa được ghi xuống flash hoặc disk. Ứng dụng cần tính nhất quán cao phải dùng cơ chế đồng bộ phù hợp như \code{fsync} hoặc thiết kế cập nhật nguyên tử. Trên router và AP, vấn đề này liên quan trực tiếp đến lưu cấu hình, cập nhật firmware và khả năng phục hồi sau mất điện. Ghi quá thường xuyên xuống flash còn làm tăng hao mòn, trong khi trì hoãn quá lâu có thể làm mất thay đổi mới nhất.
+
+\subsection{Kết quả chạy: ghi cấu hình theo kiểu nguyên tử}
+
+Hệ quả của mục trên được hiện thực hóa trong hàm \code{write\_file\_atomic} tại \code{src/common/util.c}, là hàm mà lệnh \code{apctl SAVE} sử dụng để lưu profile Wi-Fi. Trình tự gồm bốn bước: ghi toàn bộ nội dung ra file tạm \code{<path>.tmp}, gọi \code{fsync} để buộc dữ liệu xuống thiết bị lưu trữ chứ không dừng ở page cache, đóng file, rồi \code{rename} file tạm đè lên file thật. Vì \code{rename} trong cùng một filesystem là thao tác nguyên tử, thiết bị mất điện ở bất kỳ thời điểm nào cũng chỉ có thể thấy cấu hình cũ nguyên vẹn hoặc cấu hình mới nguyên vẹn, không có trạng thái nửa vời.
+
+\begin{lstlisting}[caption={Hai test case kiểm chứng cơ chế ghi nguyên tử}]
+  PASS  SAVE ghi cau hinh xuong file
+  PASS  SAVE khong de lai file tam (ghi atomic)
+\end{lstlisting}
+
+Test case thứ hai kiểm tra rằng sau khi \code{SAVE} hoàn tất, trong thư mục không còn file \code{ap6.dat.tmp} nào sót lại. Đây là chi tiết nhỏ nhưng quan trọng trên thiết bị nhúng: nếu đường xử lý lỗi quên \code{unlink} file tạm, mỗi lần lưu cấu hình thất bại sẽ để lại rác trên phân vùng cấu hình vốn chỉ có vài trăm kilobyte.
+
+\subsection{Interrupt, exception và context thực thi}
+
+Exception thường phát sinh đồng bộ từ lệnh đang thực thi, ví dụ page fault hoặc system call, còn interrupt thường đến bất đồng bộ từ phần cứng như timer, UART, Ethernet hoặc Wi-Fi. Kernel phải lưu ngữ cảnh cần thiết, chạy routine xử lý phù hợp và sau đó quyết định tiếp tục process cũ hay lập lịch task khác.
+
+Không phải mọi công việc đều nên thực hiện trực tiếp trong interrupt handler. Phần xử lý ở ngữ cảnh interrupt cần ngắn, không được ngủ và phải tránh giữ CPU quá lâu. Driver thường xác nhận interrupt, lấy trạng thái tối thiểu và chuyển phần việc nặng hơn sang cơ chế deferred work. Tư tưởng tách phần khẩn cấp khỏi phần có thể trì hoãn là nền tảng để giữ hệ thống phản hồi tốt khi có nhiều nguồn sự kiện đồng thời. Module \code{ap6sim} ở mục 11 hiện thực đúng mô hình này bằng một timer đóng vai trò nguồn interrupt và một workqueue đóng vai trò deferred work.
+
+\subsection{Ý nghĩa đối với việc đọc và debug Linux}
+
+Các tài liệu về UNIX và Linux kernel cho thấy rằng system call, process, virtual memory, filesystem và driver không phải các chương riêng biệt chỉ để học thuộc. Chúng là các lớp cùng tham gia xử lý một yêu cầu từ ứng dụng. Khi debug, cần xác định lỗi nằm ở user space, ranh giới system call, VFS, driver, interrupt hay phần cứng.
+
+Ví dụ, một lệnh cấu hình Wi-Fi thất bại có thể do process truyền tham số sai, ioctl không được driver hỗ trợ, interface chưa được probe, firmware Wi-Fi chưa nạp, interrupt không hoạt động hoặc Device Tree mô tả sai tài nguyên. Tư duy đi theo đường đi của yêu cầu từ user space xuống kernel và quay trở lại giúp việc phân tích lỗi có hệ thống hơn so với chỉ thử lệnh ngẫu nhiên. Trong dự án đi kèm, cách phân lớp này được áp dụng trực tiếp: mỗi tầng đều có một điểm quan sát riêng, gồm log của daemon, kết quả \code{apctl STATUS} với dòng \code{backend=}, nội dung \code{/proc/ap6sim} và log \code{dmesg} của module.
+
+\section{Virtual memory trong Linux}
+
+\subsection{Khái niệm bộ nhớ ảo}
+
+Virtual memory là một trong những cơ chế quan trọng nhất của hệ điều hành Linux. Khi một chương trình đang chạy, nó không làm việc trực tiếp với địa chỉ vật lý trên RAM mà làm việc với địa chỉ ảo do hệ điều hành cung cấp. Mỗi process có cảm giác như nó sở hữu một không gian địa chỉ riêng, liên tục và độc lập. Trên thực tế, các địa chỉ ảo đó được kernel và phần cứng MMU chuyển đổi thành địa chỉ vật lý tương ứng khi chương trình truy cập bộ nhớ.
+
+Cách tổ chức này giải quyết nhiều vấn đề cùng lúc. Nếu không có virtual memory, các chương trình phải chia sẻ trực tiếp RAM vật lý, dễ ghi đè lên vùng nhớ của nhau và rất khó bảo vệ hệ thống. Với virtual memory, mỗi process có không gian riêng, kernel có thể kiểm soát quyền truy cập từng vùng nhớ và có thể ánh xạ nhiều địa chỉ ảo khác nhau đến cùng một vùng vật lý khi cần chia sẻ dữ liệu. Đây là nền tảng cho memory protection, shared library, memory mapped file và cơ chế cô lập giữa các process.
+
+Trong slide Linux Programming, virtual memory được trình bày như một mảng byte liên tục đối với từng process. Tuy nhiên, mảng byte này không nằm hoàn toàn trong RAM. Disk hoặc thiết bị lưu trữ có thể chứa toàn bộ nội dung cần thiết của chương trình, còn RAM chỉ giữ những phần đang được sử dụng. Cách làm này giúp hệ thống chạy được nhiều process hơn dung lượng RAM vật lý, đồng thời cho phép kernel nạp dữ liệu theo nhu cầu thay vì nạp tất cả ngay từ đầu.
+
+\subsection{Page, page table và MMU}
+
+Virtual memory thường được quản lý theo đơn vị page. Không gian địa chỉ ảo được chia thành nhiều trang có kích thước cố định, ví dụ 4 KiB trên nhiều kiến trúc. Địa chỉ ảo có thể được tách thành hai phần: số trang ảo và offset bên trong trang. Khi CPU truy cập một địa chỉ ảo, MMU sử dụng page table để tìm xem trang ảo đó đang ánh xạ đến frame vật lý nào trong RAM.
+
+Page table là cấu trúc dữ liệu do kernel quản lý. Mỗi entry trong page table không chỉ chứa địa chỉ vật lý tương ứng mà còn chứa các bit trạng thái và quyền truy cập. Các bit này có thể cho biết trang có hiện diện trong RAM hay không, có được phép đọc hay ghi không, có được phép thực thi không, trang thuộc user space hay kernel space, và trang có bị sửa đổi hay chưa. Nhờ đó, kernel có thể phát hiện các lỗi như ghi vào vùng chỉ đọc, thực thi vùng không cho phép hoặc truy cập địa chỉ không hợp lệ.
+
+Để tăng tốc quá trình dịch địa chỉ, CPU thường có TLB, tức Translation Lookaside Buffer. TLB lưu cache các ánh xạ địa chỉ ảo sang địa chỉ vật lý được dùng gần đây. Nếu không có TLB, mỗi lần truy cập bộ nhớ đều phải đi qua page table trong RAM, làm hệ thống chậm đáng kể. Khi kernel thay đổi page table, ví dụ khi context switch sang process khác hoặc khi mmap vùng nhớ mới, TLB có thể cần được cập nhật hoặc invalid để đảm bảo kết quả dịch địa chỉ đúng.
+
+\begin{lstlisting}[caption={Tách địa chỉ ảo thành số trang và offset}]
+1) Page va dia chi ao
+   page size            = 4096 byte (4 KiB)
+   dia chi bien stack   = 0x7ffeface0498
+   so trang ao (VPN)    = 0x7ffeface0
+   offset trong trang   = 0x498
+   -> MMU dung VPN tra page table de ra frame vat ly;
+      TLB cache lai ket qua tra bang nay.
+\end{lstlisting}
+
+Chương trình \code{demos/06-virtual-memory/vm\_demo.c} lấy kích thước trang bằng \code{sysconf(\_SC\_PAGESIZE)} rồi tách một địa chỉ thật thành hai phần. Với trang 4 KiB, 12 bit thấp là offset và phần còn lại là số trang ảo; đây chính là phép tách mà MMU thực hiện bằng phần cứng ở mỗi lần truy cập bộ nhớ.
+
+\subsection{Page fault và demand paging}
+
+Page fault xảy ra khi process truy cập một trang mà MMU không thể ánh xạ ngay lập tức. Page fault không phải lúc nào cũng là lỗi nghiêm trọng. Trong cơ chế demand paging, khi chương trình bắt đầu chạy, kernel không cần nạp toàn bộ code và data vào RAM. Chỉ khi process thực sự truy cập đến một trang chưa có trong RAM, page fault mới xảy ra và kernel nạp trang đó từ file thực thi hoặc từ backing storage vào RAM.
+
+Nếu RAM còn trống, kernel có thể cấp một frame vật lý mới cho trang cần nạp. Nếu RAM không còn đủ, kernel phải chọn một victim page để thay thế. Nếu victim page đã bị sửa đổi, kernel cần ghi nó ra swap hoặc backing store trước khi tái sử dụng frame. Nếu victim page chưa bị sửa đổi, kernel có thể bỏ nó đi vì có thể nạp lại từ file gốc khi cần. Cơ chế này giúp hệ thống sử dụng RAM hiệu quả hơn nhưng cũng tạo ra chi phí khi page fault xảy ra quá nhiều.
+
+Page fault cũng có thể là lỗi thật. Nếu process truy cập địa chỉ không thuộc vùng nhớ hợp lệ, ghi vào vùng chỉ đọc hoặc truy cập kernel space từ user space, kernel sẽ không thể xử lý bằng cách nạp page. Khi đó, kernel thường gửi signal \code{SIGSEGV} đến process. Đây là nguyên nhân phổ biến của lỗi segmentation fault trong chương trình C khi dùng con trỏ sai, truy cập mảng vượt giới hạn hoặc dùng vùng nhớ đã giải phóng.
+
+\subsection{Kết quả chạy: đo demand paging bằng RSS và page fault}
+
+Phần thú vị nhất của demo là đo trực tiếp khoảng cách giữa bộ nhớ ảo đã xin và RAM vật lý thực sự bị chiếm. Chương trình gọi \code{mmap} xin 64 MB, đọc chỉ số RSS trong \code{/proc/self/status} trước và sau, rồi ghi một byte vào từng trang và đọc lại RSS cùng số page fault trong \code{getrusage}.
+
+\begin{lstlisting}[caption={Demand paging: xin 64 MB nhưng chưa chạm vào}]
+2) Demand paging: xin 64 MB nhung chua dung
+   sau mmap 64MB        : RSS 1556 KB -> 1684 KB (gan nhu khong doi)
+   sau khi ghi tung trang: RSS 67220 KB (+65536 KB)
+   minor fault tang     : 16384  (nap trang, khong cham dia)
+   major fault tang     : 0  (phai doc tu disk/swap)
+   -> RAM chi bi chiem khi process THUC SU cham vao trang.
+\end{lstlisting}
+
+Các con số khớp chính xác với lý thuyết. Ngay sau \code{mmap}, RSS chỉ tăng 128 KB dù chương trình đã xin 64 MB không gian ảo; kernel mới chỉ ghi nhận một vùng ánh xạ chứ chưa cấp một frame vật lý nào. Sau khi ghi một byte vào mỗi trang, RSS tăng đúng 65536 KB, tức đủ 64 MB, và số minor fault tăng đúng 16384 lần. Con số 16384 không ngẫu nhiên: 64 MB chia cho trang 4 KiB đúng bằng 16384 trang, nghĩa là mỗi trang gây ra đúng một page fault đầu tiên. Số major fault bằng 0 cho biết không lần nào kernel phải đọc từ đĩa hay swap, vì đây là vùng nhớ ẩn danh được cấp phát mới.
+
+Kết quả này có ý nghĩa thực tiễn khi đọc số liệu bộ nhớ trên thiết bị nhúng. Cột VSZ trong \code{ps} hay \code{top} là bộ nhớ ảo, và nó có thể lớn hơn nhiều lần dung lượng RAM thật mà không nói lên điều gì đáng lo. Chỉ số cần theo dõi để phát hiện memory leak là RSS. Ngược lại, nếu quan sát thấy major fault tăng liên tục trên thiết bị có swap đặt trên flash, đó là dấu hiệu hệ thống đang thrashing và tuổi thọ flash sẽ giảm nhanh.
+
+\subsection{Memory mapping và chia sẻ dữ liệu}
+
+Memory mapping là cơ chế ánh xạ file hoặc vùng nhớ vào không gian địa chỉ ảo của process. Hàm \code{mmap} cho phép một file được xem như một vùng nhớ. Khi process đọc hoặc ghi vào vùng này, kernel sẽ xử lý việc đồng bộ với file phía sau. Cách làm này có thể hiệu quả hơn việc gọi \code{read} và \code{write} nhiều lần, đặc biệt với file lớn hoặc dữ liệu cần truy cập ngẫu nhiên.
+
+Memory mapping cũng là nền tảng cho shared library. Khi nhiều process cùng sử dụng một thư viện động như glibc, phần code chỉ đọc của thư viện có thể được ánh xạ chung vào nhiều process. Mỗi process nhìn thấy thư viện trong không gian địa chỉ riêng của nó, nhưng thực tế các trang vật lý chứa code có thể được chia sẻ. Điều này tiết kiệm RAM đáng kể trên hệ thống Linux.
+
+Trong IPC, \code{mmap} còn được dùng để tạo shared memory. Nhiều process có thể ánh xạ cùng một vùng nhớ vật lý vào không gian địa chỉ của mình. Khi một process ghi dữ liệu, process khác có thể đọc được mà không cần copy qua kernel nhiều lần. Tuy nhiên, shared memory không tự giải quyết vấn đề đồng bộ. Nếu nhiều process cùng ghi vào một vùng dữ liệu, chương trình cần semaphore, mutex liên tiến trình hoặc cơ chế khóa khác để tránh race condition.
+
+\begin{lstlisting}[caption={\code{mmap} file và khác biệt MAP\_SHARED / MAP\_PRIVATE qua \code{fork}}]
+3) mmap file: doc/ghi file nhu mang byte
+   noi dung trong file  : "Du lieu duoc ghi qua con tro, khong goi write()"
+   doc lai bang read()  : "Du lieu duoc ghi qua con tro, khong goi write()"
+
+4) MAP_SHARED vs MAP_PRIVATE qua fork()
+   MAP_SHARED  sau khi con ghi 999 : 999  <- cha thay thay doi
+   MAP_PRIVATE sau khi con ghi 999 : 100  <- copy-on-write
+   -> MAP_SHARED chinh la co che dung cho shared memory IPC.
+\end{lstlisting}
+
+Phép thử thứ ba cho thấy dữ liệu được ghi bằng phép gán con trỏ thông thường, không hề gọi \code{write}, vẫn xuất hiện đầy đủ khi đọc lại file bằng \code{read}. Đây chính là điều làm \code{mmap} hấp dẫn với file lớn: bỏ được một lần copy giữa buffer của kernel và buffer của user space.
+
+Phép thử thứ tư là phép so sánh có giá trị nhất trong mục này. Cùng một đoạn mã, cùng một thao tác ghi giá trị 999 trong process con, nhưng với cờ \code{MAP\_SHARED} thì process cha nhìn thấy 999, còn với cờ \code{MAP\_PRIVATE} thì process cha vẫn thấy 100. Khác biệt duy nhất nằm ở một tham số của \code{mmap}, và nó quyết định hai cơ chế hoàn toàn khác nhau: chia sẻ trang vật lý thật sự, hay copy-on-write. Chính \code{MAP\_SHARED} là nền tảng cho vùng \code{/dev/shm/ap6\_stats} mà daemon \code{apd} dùng để chia sẻ telemetry với \code{apmon} ở mục 16.
+
+\subsection{Ý nghĩa đối với Embedded Linux}
+
+Trong Embedded Linux, virtual memory giúp hệ thống ổn định hơn vì lỗi của một ứng dụng user space thường không phá hỏng toàn bộ kernel. Tuy nhiên, tài nguyên của thiết bị nhúng thường hạn chế, nên lập trình viên phải hiểu rõ heap, stack, mmap và shared library để tránh lãng phí RAM. Một memory leak nhỏ trên PC có thể không đáng kể, nhưng trên thiết bị chạy liên tục nhiều ngày hoặc nhiều tháng, nó có thể làm service bị kill hoặc thiết bị mất ổn định.
+
+Khi debug ứng dụng nhúng, hiểu virtual memory giúp phân tích các lỗi như segmentation fault, lỗi không load được shared library, lỗi thiếu quyền truy cập vùng nhớ hoặc lỗi mmap thiết bị. Các công cụ như \code{pmap}, \code{/proc/[pid]/maps}, \code{strace}, \code{gdb} và log kernel giúp quan sát cách process sử dụng bộ nhớ. Đây là nền tảng quan trọng trước khi đi sâu vào driver, DMA buffer hoặc memory mapped I/O.
+
+\section{Process trong Linux}
+
+\subsection{Khái niệm process và tài nguyên của process}
+
+Process là một chương trình đang được thực thi. Khi một file executable được chạy, kernel tạo ra một process với không gian địa chỉ riêng, PID riêng, trạng thái CPU, bảng file descriptor, thông tin quyền hạn, biến môi trường và nhiều cấu trúc quản lý khác. Process không chỉ là mã lệnh; nó là một thực thể sống trong hệ điều hành, được scheduler cấp CPU và được kernel quản lý tài nguyên.
+
+Mỗi process có PID, tức Process ID. Ngoài ra, process thường có PPID để chỉ process cha. Quan hệ cha con này rất quan trọng trong Linux vì nhiều process được tạo ra bằng cách fork từ một process khác. Khi quan sát hệ thống bằng các lệnh như \code{ps}, \code{top} hoặc \code{pstree}, có thể thấy cây process phản ánh cách các chương trình được khởi động và quản lý.
+
+Process có không gian địa chỉ riêng, vì vậy biến toàn cục hoặc heap của process này không thể bị process khác truy cập trực tiếp. Điều này tạo sự cô lập và bảo vệ hệ thống. Tuy nhiên, process vẫn có thể giao tiếp với bên ngoài thông qua file descriptor, socket, pipe, shared memory hoặc các cơ chế IPC khác. Cách Linux biểu diễn file, thiết bị, socket và pipe bằng file descriptor giúp process tương tác với nhiều loại tài nguyên theo một mô hình tương đối thống nhất.
+
+\subsection{Trạng thái của process}
+
+Trong vòng đời của mình, process có thể đi qua nhiều trạng thái. Khi process đang được CPU thực thi, nó ở trạng thái running. Khi process sẵn sàng chạy nhưng chưa được scheduler chọn, nó ở trạng thái runnable. Khi process chờ I/O, chờ signal, chờ lock hoặc chờ dữ liệu từ một process khác, nó ở trạng thái sleeping hoặc blocked. Khi process bị dừng bởi debugger hoặc signal, nó có thể ở trạng thái stopped.
+
+Một trạng thái đặc biệt là zombie. Zombie process là process đã kết thúc thực thi nhưng entry của nó vẫn còn trong bảng process vì process cha chưa gọi \code{wait} hoặc \code{waitpid} để thu hồi exit status. Zombie không còn chạy và không chiếm CPU, nhưng vẫn chiếm một slot trong bảng process. Nếu chương trình cha tạo nhiều process con nhưng không thu hồi đúng cách, hệ thống có thể tích lũy nhiều zombie.
+
+Một trường hợp khác là orphan process. Orphan process xuất hiện khi process cha kết thúc trước process con. Khi đó, process con được nhận nuôi bởi process init, thường là systemd hoặc init tương ứng. Orphan không nhất thiết là lỗi, nhưng trong thiết kế daemon hoặc service nhúng, cần hiểu rõ quan hệ cha con để tránh tạo process ngoài kiểm soát.
+
+\subsection{Tạo process bằng fork}
+
+Trong Linux, \code{fork} là system call dùng để tạo process con. Sau khi \code{fork} thành công, hệ thống có hai process gần như giống nhau: process cha và process con. Cả hai tiếp tục chạy từ ngay sau lời gọi \code{fork}, nhưng giá trị trả về khác nhau. Trong process cha, \code{fork} trả về PID của process con. Trong process con, \code{fork} trả về 0. Nếu lỗi, \code{fork} trả về -1.
+
+Cơ chế \code{fork} ban đầu có vẻ tốn kém vì phải nhân bản process, nhưng Linux tối ưu bằng copy-on-write. Sau khi fork, cha và con có thể tạm thời chia sẻ các trang vật lý chỉ đọc. Chỉ khi một trong hai process ghi vào trang đó, kernel mới copy trang riêng cho process ghi. Cơ chế này làm việc tạo process hiệu quả hơn, đặc biệt khi process con sẽ gọi \code{exec} ngay sau đó.
+
+Trong thực tế, mô hình phổ biến là \code{fork} rồi \code{exec}. Process cha tạo process con, process con gọi \code{exec} để thay thế image hiện tại bằng chương trình khác, còn process cha gọi \code{wait} để chờ kết thúc. Đây là cách shell chạy một lệnh, và cũng là mô hình nền tảng cho nhiều daemon hoặc service manager.
+
+\subsection{exec và wait}
+
+Họ hàm \code{exec} không tạo process mới mà thay thế chương trình đang chạy trong process hiện tại bằng một chương trình khác. PID của process không đổi, nhưng code, data, heap, stack và memory layout được thay bằng image mới. Điều này giải thích tại sao shell phải \code{fork} trước rồi process con mới \code{exec}; nếu shell gọi \code{exec} trực tiếp, chính shell sẽ bị thay thế bởi chương trình mới.
+
+\code{wait} và \code{waitpid} cho phép process cha chờ process con kết thúc và thu hồi trạng thái thoát. Nếu process cha không gọi các hàm này, process con sau khi kết thúc có thể trở thành zombie. Trong chương trình tạo nhiều process con, \code{waitpid} thường linh hoạt hơn vì có thể chờ một PID cụ thể hoặc kiểm tra trạng thái không blocking.
+
+Trong Embedded Linux, quản lý đúng \code{fork}, \code{exec} và \code{wait} rất quan trọng. Nhiều hệ thống dùng script hoặc daemon để restart service, gọi tool cấu hình, chạy chương trình phụ hoặc thu thập log. Nếu không kiểm soát process con, hệ thống có thể bị leak zombie, chạy trùng service hoặc không phát hiện được lỗi của chương trình con.
+
+\subsection{Kết quả chạy: fork, copy-on-write, exec, zombie và orphan}
+
+Chương trình \code{demos/07-process/process\_demo.c} chạy năm phép thử nối tiếp nhau. Vì bản thân chương trình có \code{fork}, mỗi process con thừa hưởng buffer stdio của cha nên phần đầu của output bị in lặp lại; hiện tượng này chính là lý do process con nên dùng \code{\_exit} thay cho \code{exit} sau khi \code{fork}. Trích dẫn dưới đây đã lược bỏ các dòng lặp.
+
+\begin{lstlisting}[caption={fork, không gian địa chỉ riêng và copy-on-write}]
+1) fork(): tao process con
+   truoc fork: pid=499701 ppid=499600
+   [con]  fork() tra ve 0, pid=499702, ppid=499701
+   [cha]  fork() tra ve 499702 (= PID con)
+
+2) Khong gian dia chi rieng + copy-on-write
+   truoc fork : g_counter = 100
+   [con]  g_counter = 1000 (chi doi trong process con)
+   [cha]  g_counter = 100 (khong bi con lam thay doi)
+   [cha]  exit status cua con = 3
+   -> muon chia se du lieu that su phai dung IPC (muc 9).
+\end{lstlisting}
+
+Kết quả xác nhận hai điểm. Thứ nhất, cùng một lời gọi \code{fork} trả về hai giá trị khác nhau ở hai process, và PPID của process con đúng bằng PID của process cha. Thứ hai, process con gán \code{g\_counter = 1000} nhưng biến toàn cục cùng tên trong process cha vẫn giữ giá trị 100. Hai process dùng chung tên biến, thậm chí dùng chung địa chỉ ảo, nhưng sau thao tác ghi thì kernel đã tách thành hai trang vật lý khác nhau. Đây là copy-on-write nhìn từ phía ứng dụng, và nó giải thích vì sao muốn chia sẻ dữ liệu thật thì bắt buộc phải dùng IPC.
+
+\begin{lstlisting}[caption={fork + exec + waitpid, zombie và orphan}]
+3) fork + exec + waitpid (cach shell chay mot lenh)
+   [con]  pid=499704, chuan bi exec 'uname -sr'
+Linux 7.0.0-28-generic
+   [cha]  con 499704 ket thuc voi exit=0
+   -> neu shell exec truc tiep, chinh shell se bi thay the.
+
+4) Zombie process
+   trang thai con khi cha chua wait (Z = zombie):
+    499705 Z    process_demo
+   sau waitpid(): entry trong bang process da duoc giai phong
+
+5) Orphan process
+   [cha]  khong wait, con 499731 se thanh orphan
+   -> daemon dung dung mo hinh nay: fork roi cha thoat.
+\end{lstlisting}
+
+Phép thử thứ ba tái hiện đúng cách shell chạy một lệnh: process con giữ nguyên PID 499704 nhưng image bị thay bằng \code{/usr/bin/uname}, nên dòng \code{Linux 7.0.0-28-generic} là do chương trình mới in ra chứ không phải demo in. Phép thử thứ tư bắt được trạng thái zombie ở thời điểm thật: cột trạng thái của \code{ps} hiển thị \code{Z} khi process con đã kết thúc mà cha chưa \code{waitpid}, và entry đó biến mất ngay sau khi cha thu hồi. Đây chính xác là tình huống mà một daemon tạo nhiều process con nhưng quên xử lý \code{SIGCHLD} sẽ gặp phải, và mục 10.4 sẽ trình bày cách daemon \code{apd} tránh nó.
+
+\subsection{Daemon và service trong hệ thống nhúng}
+
+Daemon là process chạy nền, thường không gắn trực tiếp với terminal. Trong hệ thống nhúng, daemon có thể quản lý Wi-Fi, mạng, LED, nút nhấn, watchdog, telemetry hoặc giao tiếp cloud. Daemon cần xử lý signal đúng cách, ghi log rõ ràng, đóng file descriptor khi thoát và tránh leak tài nguyên.
+
+Khi daemon được quản lý bởi systemd, procd hoặc init script, vòng đời của process còn liên quan đến service manager. Service manager có thể khởi động, dừng, restart và giám sát process. Điều này liên hệ trực tiếp với kiến thức process: một service thực tế không chỉ là một file thực thi, mà là một process có vòng đời, trạng thái, log và chính sách restart.
+
+Hàm \code{daemonize} trong \code{src/common/util.c} của dự án hiện thực đúng mô hình orphan có chủ đích vừa nêu: \code{fork} lần thứ nhất rồi process cha thoát để shell không phải chờ, gọi \code{setsid} để tách khỏi terminal điều khiển, \code{fork} lần thứ hai để process kết quả không thể giành lại terminal, chuyển thư mục làm việc và ghi pid file. Bộ test kiểm chứng bước này bằng cách kiểm tra pid file tồn tại và PPID của daemon không còn là shell đã khởi động nó.
+
+\section{Thread trong Linux}
+
+\subsection{Khái niệm thread}
+
+Thread là đơn vị thực thi nhỏ nhất được scheduler điều phối. Một process có thể có một hoặc nhiều thread. Các thread trong cùng process chia sẻ không gian địa chỉ, heap, biến toàn cục, vùng mmap và file descriptor. Tuy nhiên, mỗi thread có stack riêng, program counter riêng, register context riêng và trạng thái thực thi riêng.
+
+So với process, thread nhẹ hơn vì không cần tạo không gian địa chỉ hoàn toàn mới. Việc trao đổi dữ liệu giữa các thread cũng đơn giản hơn vì chúng có thể truy cập chung biến trong cùng process. Tuy nhiên, chính sự chia sẻ này làm lập trình thread dễ phát sinh lỗi đồng bộ. Nếu hai thread cùng ghi vào một biến mà không có khóa, kết quả có thể phụ thuộc vào thứ tự chạy không xác định của scheduler.
+
+Trong Linux, lập trình thread C thường dùng POSIX Thread, hay pthread. Hàm \code{pthread\_create} tạo thread mới, \code{pthread\_join} chờ thread kết thúc, \code{pthread\_exit} kết thúc thread hiện tại. Khi biên dịch chương trình pthread, thường cần liên kết với tùy chọn \code{-pthread} để compiler và linker cấu hình đúng thư viện thread.
+
+\subsection{So sánh process và thread}
+
+Process có mức cô lập cao hơn thread. Mỗi process có không gian địa chỉ riêng, nên lỗi ghi nhầm bộ nhớ thường chỉ ảnh hưởng process đó. Giao tiếp giữa process cần IPC như pipe, socket hoặc shared memory. Ngược lại, thread chia sẻ bộ nhớ trong cùng process nên trao đổi dữ liệu nhanh hơn, nhưng lỗi của một thread có thể làm hỏng toàn bộ process.
+
+Tạo process thường tốn tài nguyên hơn tạo thread, dù Linux đã tối ưu bằng copy-on-write. Thread phù hợp khi các tác vụ cần chia sẻ dữ liệu thường xuyên, ví dụ một thread nhận dữ liệu mạng, một thread xử lý dữ liệu, một thread ghi log. Process phù hợp khi cần cô lập mạnh hơn, ví dụ tách một thành phần có nguy cơ crash hoặc chạy các chương trình độc lập.
+
+Trong hệ thống nhúng, lựa chọn process hay thread phụ thuộc vào bài toán. Nếu thiết bị có ít RAM và cần chia sẻ buffer lớn, thread có thể hiệu quả hơn. Nếu hệ thống cần độ ổn định cao và muốn lỗi của một module không làm chết toàn bộ service, nhiều process có thể an toàn hơn. Thiết kế tốt thường kết hợp cả hai mô hình. Daemon \code{apd} trong dự án là ví dụ của cách kết hợp: dùng thread cho telemetry vì thread này chia sẻ trực tiếp cấu trúc trạng thái với vòng lặp chính, nhưng dùng \code{fork} và \code{exec} khi chạy script áp cấu hình vì script là chương trình ngoài, có thể lỗi và không nên chạy chung không gian địa chỉ với daemon.
+
+\subsection{Race condition và critical section}
+
+Race condition xảy ra khi kết quả chương trình phụ thuộc vào thứ tự thực thi giữa các thread. Ví dụ, hai thread cùng tăng một biến đếm toàn cục. Lệnh tăng biến trong C có thể gồm nhiều bước ở mức máy: đọc giá trị, cộng thêm một, ghi lại. Nếu hai thread xen kẽ nhau giữa các bước này, một lần cập nhật có thể bị mất.
+
+Critical section là vùng code truy cập tài nguyên dùng chung và cần được bảo vệ. Tài nguyên dùng chung có thể là biến toàn cục, queue, linked list, file descriptor, socket hoặc buffer. Khi một thread đang ở trong critical section, các thread khác không được phép vào cùng vùng bảo vệ đó nếu có nguy cơ làm sai dữ liệu.
+
+Mutex là cơ chế phổ biến để bảo vệ critical section. Thread gọi \code{pthread\_mutex\_lock} trước khi truy cập dữ liệu chung và gọi \code{pthread\_mutex\_unlock} sau khi xong. Nếu mutex đang bị giữ bởi thread khác, thread hiện tại sẽ chờ. Cách dùng mutex phải cẩn thận để tránh quên unlock, lock sai thứ tự hoặc giữ lock quá lâu làm giảm hiệu năng.
+
+\subsection{Kết quả chạy: đo mức mất dữ liệu do race condition}
+
+Chương trình \code{demos/08-thread/thread\_demo.c} cho bốn thread cùng tăng một biến đếm 200000 lần, một lần không khóa và một lần có mutex, trên cùng một máy và cùng một lần chạy.
+
+\begin{lstlisting}[caption={Race condition và tác dụng của mutex}]
+1+2) Race condition va mutex (4 thread x 200000 vong)
+   gia tri mong doi          : 800000
+   khong khoa (co race)      : 729306  (mat 70694 lan cap nhat)
+   co mutex bao ve           : 800000
+   -> ket qua sai khong on dinh giua cac lan chay, dung loai
+      loi rat kho tai hien tren thiet bi that.
+\end{lstlisting}
+
+Con số 729306 so với 800000 cho thấy gần 8,8\% số lần cập nhật bị mất chỉ vì thiếu một cặp lock/unlock. Điều đáng chú ý không phải là sai lệch lớn hay nhỏ, mà là sai lệch này thay đổi giữa các lần chạy và phụ thuộc vào cách scheduler xen kẽ các thread. Đây chính là đặc điểm làm race condition trở thành loại lỗi khó chịu nhất trên thiết bị thật: chương trình có thể chạy đúng hàng nghìn lần trong phòng lab rồi sai đúng một lần trên thiết bị của khách hàng, và log thường không đủ để tái hiện. Khi có mutex, kết quả trở về đúng 800000 một cách ổn định.
+
+\subsection{Deadlock, condition variable và semaphore}
+
+Deadlock xảy ra khi các thread chờ nhau theo vòng tròn và không thread nào tiếp tục được. Ví dụ, thread A giữ mutex 1 và chờ mutex 2, trong khi thread B giữ mutex 2 và chờ mutex 1. Để tránh deadlock, chương trình cần quy định thứ tự lock rõ ràng, giảm số lock lồng nhau và đảm bảo mọi đường thoát đều unlock đúng cách.
+
+Condition variable được dùng khi thread cần chờ một điều kiện logic thay vì chỉ chờ mutex. Ví dụ, một thread producer đưa dữ liệu vào queue, thread consumer chờ queue có dữ liệu. Consumer có thể ngủ trên condition variable và được đánh thức khi producer thêm dữ liệu. Cơ chế này hiệu quả hơn việc liên tục polling.
+
+Semaphore có thể dùng để đếm tài nguyên hoặc đồng bộ giữa thread/process. Nếu semaphore có giá trị lớn hơn 0, thread có thể đi tiếp và giảm giá trị. Nếu giá trị bằng 0, thread phải chờ. Semaphore phù hợp với bài toán giới hạn số tài nguyên đồng thời, hoặc báo hiệu số lượng phần tử trong một buffer.
+
+\begin{lstlisting}[caption={Producer--consumer bằng condition variable và thứ tự lock nhất quán}]
+3) Producer - consumer bang condition variable
+   consumer 1 tong cong 111
+   consumer 2 tong cong 99
+   tong tat ca item = 210 (mong doi 210)
+   -> consumer NGU tren condvar, khong quay vong polling,
+      tiet kiem CPU tren thiet bi nhung.
+
+4) Tranh deadlock bang thu tu lock nhat quan
+   hai thread cung lay lock theo thu tu A -> B: khong deadlock
+   -> neu doi mot thread thanh B -> A, chuong trinh se treo;
+      dung 'gdb -p <pid>' + 'thread apply all bt' de xem.
+\end{lstlisting}
+
+Ở phép thử producer--consumer, hai consumer nhận được số item khác nhau, 111 và 99, vì việc thread nào được đánh thức trước là do scheduler quyết định. Nhưng tổng của chúng luôn bằng 210, đúng bằng tổng các số từ 1 đến 20 mà producer đưa vào. Đây là điểm cần phân biệt rõ: đồng bộ đúng không có nghĩa là thứ tự thực thi xác định, mà có nghĩa là kết quả cuối cùng không phụ thuộc vào thứ tự đó. Việc consumer ngủ trên condition variable thay vì quay vòng kiểm tra cũng có ý nghĩa thực tế trên thiết bị nhúng: một vòng lặp polling sẽ giữ CPU bận, làm tăng nhiệt và tiêu thụ điện, trong khi thread ngủ hoàn toàn không tốn chu kỳ CPU cho đến khi được đánh thức.
+
+Phép thử thứ tư có tính minh họa ngược: chương trình cố ý cho hai thread lấy hai mutex theo cùng một thứ tự A rồi B, và không xảy ra deadlock. Chỉ cần đảo thứ tự ở một thread thành B rồi A là chương trình sẽ treo. Quy tắc rút ra và cũng được áp dụng trong toàn bộ mã nguồn của dự án là: mọi đường đi trong chương trình phải lấy khóa theo cùng một thứ tự đã quy ước.
+
+\subsection{Ứng dụng thread trong Embedded Linux}
+
+Trong ứng dụng nhúng, thread thường được dùng để tổ chức các tác vụ song song. Một thiết bị gateway có thể có thread đọc socket, thread xử lý dữ liệu, thread giao tiếp UART và thread ghi log. Một AP có thể có thread nhận lệnh cấu hình, thread theo dõi trạng thái client và thread gửi telemetry về server.
+
+Tuy nhiên, dùng nhiều thread không tự động làm chương trình tốt hơn. Nếu thiết kế đồng bộ kém, hệ thống có thể sinh race condition, deadlock hoặc lỗi timing khó tái hiện. Vì vậy, khi dùng thread trong Embedded Linux, cần xác định rõ dữ liệu nào dùng chung, thread nào sở hữu tài nguyên nào, khi nào cần lock và khi nào nên dùng message queue thay vì chia sẻ biến trực tiếp.
+
+Trong dự án, thread telemetry tại \code{src/apd/telemetry.c} cứ mỗi 500 ms lại sinh một mẫu số liệu mới và ghi vào vùng shared memory. Nó không dùng \code{sleep} thuần túy mà chờ trên condition variable có thời hạn, nhờ vậy khi daemon nhận \code{SIGTERM} thì thread thức dậy ngay lập tức và thoát, thay vì phải chờ hết chu kỳ. Đây là chi tiết nhỏ nhưng quyết định thời gian shutdown của service trên thiết bị thật.
+
+\section{Interprocess Communication}
+
+\subsection{Nhu cầu giao tiếp liên tiến trình}
+
+Mỗi process Linux có không gian địa chỉ riêng, vì vậy process này không thể tự ý đọc ghi biến của process khác. Sự cô lập này giúp hệ thống an toàn hơn nhưng đặt ra nhu cầu giao tiếp liên tiến trình, gọi là IPC. IPC cho phép các process trao đổi dữ liệu, gửi tín hiệu điều khiển hoặc đồng bộ thứ tự thực thi.
+
+Trong hệ thống nhúng thực tế, IPC xuất hiện ở rất nhiều nơi. Một web backend cần gửi yêu cầu đến daemon cấu hình Wi-Fi. Một process đọc cảm biến cần gửi dữ liệu cho process xử lý. Một service quản lý cần nhận trạng thái từ nhiều process con. Một ứng dụng cần gửi log hoặc event đến process giám sát. Vì vậy, hiểu IPC là điều kiện cần để thiết kế hệ thống Linux nhiều process.
+
+\subsection{Pipe và FIFO}
+
+Pipe là cơ chế IPC đơn giản, thường dùng để truyền dữ liệu một chiều giữa các process có quan hệ gần, đặc biệt là cha con. Trong shell, dấu \code{|} tạo pipeline giữa stdout của process trước và stdin của process sau. Pipe hoạt động như một buffer trong kernel. Process ghi dữ liệu vào một đầu, process khác đọc dữ liệu từ đầu còn lại.
+
+Pipe thông thường không có tên trong filesystem, vì vậy nó phù hợp cho các process được tạo cùng thời điểm hoặc có quan hệ kế thừa file descriptor. FIFO, hay named pipe, mở rộng pipe bằng cách có một tên trong filesystem. Nhờ đó, hai process không có quan hệ cha con vẫn có thể mở cùng FIFO để trao đổi dữ liệu.
+
+Pipe và FIFO đơn giản, dễ dùng, phù hợp với dòng dữ liệu tuần tự. Tuy nhiên, chúng không phù hợp nếu cần truy cập ngẫu nhiên, chia sẻ buffer lớn hoặc gửi thông điệp có cấu trúc phức tạp. Khi dữ liệu lớn hoặc cần nhiều client, socket hoặc shared memory có thể phù hợp hơn.
+
+\begin{lstlisting}[caption={pipe, EOF và FIFO có tên trong filesystem}]
+1) pipe(): buffer trong kernel, mot chieu
+   [cha] nhan tu con: cau hinh: Channel=11
+   read() lan hai tra ve 0 (EOF vi moi dau ghi da dong)
+
+2) Pipeline kieu shell: ls /etc | wc -l
+   257
+   -> dau '|' cua shell chinh la pipe + dup2 + exec.
+
+3) FIFO (named pipe): co ten trong filesystem
+   da tao /tmp/ap6_demo_fifo
+   nhan qua FIFO: EVENT sta_connect aa:bb:cc:dd:ee:ff
+\end{lstlisting}
+
+Chi tiết đáng chú ý nhất trong kết quả này là dòng thứ hai: lần \code{read} thứ hai trả về 0. Giá trị 0 không phải lỗi mà là quy ước báo hết dữ liệu, và nó chỉ xuất hiện khi mọi file descriptor phía ghi đã được đóng. Nếu process cha quên đóng đầu ghi của chính mình sau khi \code{fork}, lần \code{read} này sẽ treo vô hạn vì kernel vẫn thấy còn một người có thể ghi vào pipe. Đây là lỗi kinh điển khi tự viết pipeline và cũng là lý do phần dựng pipeline kiểu shell ở phép thử thứ hai phải \code{dup2} rồi đóng cẩn thận các fd thừa trước khi \code{exec}. Kết quả 257 là số dòng của \code{ls /etc} trên máy thử nghiệm, do chương trình tự dựng lại pipeline bằng \code{pipe}, \code{dup2} và \code{exec} chứ không gọi shell.
+
+\subsection{Message queue}
+
+Message queue cho phép process gửi và nhận các thông điệp rời rạc. Khác với pipe là dòng byte liên tục, message queue giữ ranh giới từng message. Điều này thuận tiện khi dữ liệu có cấu trúc như command, event, trạng thái hoặc gói cấu hình.
+
+Trong POSIX message queue, mỗi message có kích thước và có thể có độ ưu tiên. Process nhận có thể chờ đến khi có message mới. Cơ chế này phù hợp cho mô hình producer-consumer hoặc điều khiển daemon bằng các lệnh rời rạc. Tuy nhiên, message queue có giới hạn về kích thước message và số lượng message, nên không nên dùng để truyền dữ liệu quá lớn.
+
+\begin{lstlisting}[caption={Message queue giữ ranh giới message và tôn trọng độ ưu tiên}]
+Da tao queue /ap6_demo_mq (maxmsg=10, msgsize=128)
+
+   Nhan (queue tra message uu tien cao truoc):
+   [nhan] #4 EMERGENCY    = radar_detected   (prio=9, 100 byte)
+   [nhan] #1 SSID         = Viettel_Lab      (prio=1, 100 byte)
+   [nhan] #2 Channel      = 11               (prio=1, 100 byte)
+   [nhan] #3 TxPower      = 80               (prio=1, 100 byte)
+   [nhan] #5 BeaconPeriod = 100              (prio=1, 100 byte)
+\end{lstlisting}
+
+Kết quả cho thấy hai tính chất mà pipe không có. Thứ nhất, message thứ tư được gửi với độ ưu tiên 9 và được nhận trước tất cả các message ưu tiên 1, dù nó vào queue sau. Ứng dụng trực tiếp trong ngữ cảnh AP là lệnh khẩn cấp kiểu phát hiện radar, buộc phải đổi kênh ngay, không nên xếp hàng sau các lệnh cấu hình thông thường. Thứ hai, các message ưu tiên bằng nhau vẫn giữ đúng thứ tự vào ra, và mỗi lần nhận trả về trọn vẹn một message 100 byte chứ không phải một đoạn byte tùy ý. Với pipe, bên nhận phải tự định nghĩa cách tách gói, thường bằng ký tự xuống dòng hoặc trường độ dài ở đầu.
+
+\subsection{Shared memory}
+
+Shared memory là cơ chế IPC có hiệu năng cao vì nhiều process cùng ánh xạ một vùng nhớ chung. Sau khi mapping hoàn tất, dữ liệu không cần copy qua kernel trong mỗi lần trao đổi. Điều này rất hữu ích với buffer lớn như dữ liệu camera, audio, packet buffer hoặc bảng trạng thái lớn.
+
+Điểm yếu của shared memory là nó chỉ cung cấp vùng nhớ chung, không cung cấp đồng bộ. Nếu một process đang ghi và process khác đọc cùng lúc, dữ liệu có thể không nhất quán. Vì vậy, shared memory thường phải đi kèm semaphore, mutex liên tiến trình hoặc cơ chế lock tự thiết kế. Khi process crash, chương trình cũng cần xử lý việc dọn dẹp vùng shared memory để tránh rò rỉ tài nguyên hệ thống.
+
+\subsection{Semaphore và đồng bộ process}
+
+Semaphore dùng để đồng bộ hoặc giới hạn truy cập tài nguyên. Trong IPC, semaphore có thể bảo vệ shared memory, báo hiệu dữ liệu mới hoặc điều phối thứ tự chạy giữa các process. Một process có thể giảm semaphore trước khi vào vùng critical section và tăng semaphore khi rời khỏi vùng đó. Process khác nếu thấy semaphore chưa sẵn sàng sẽ phải chờ.
+
+Semaphore rất hữu ích nhưng cũng có rủi ro. Nếu process giữ semaphore rồi crash, các process khác có thể bị chờ vô hạn nếu không có cơ chế phục hồi. Vì vậy, trong hệ thống nhúng cần chạy lâu dài, thiết kế đồng bộ phải tính đến timeout, cleanup và khởi tạo lại trạng thái sau lỗi.
+
+\begin{lstlisting}[caption={Shared memory với và không có semaphore}]
+Lan 1: 4 process x 50000 vong, KHONG dong bo
+   mong doi 200000, thuc te 200000  -> mat 0 lan cap nhat
+Lan 2: cung phep thu, co POSIX semaphore bao ve
+   mong doi 200000, thuc te 200000  -> dung
+   process ghi cuoi cung: pid 499804
+
+Luu y khi trien khai:
+  - shm va sem ton tai doc lap voi process; neu khong unlink,
+    chung con lai trong /dev/shm sau khi chuong trinh thoat.
+  - process giu semaphore ma crash se lam process khac cho
+    vo han -> can timeout (sem_timedwait) hoac mutex ROBUST.
+\end{lstlisting}
+
+Lần chạy này cho một kết quả cần được diễn giải trung thực: phép thử không đồng bộ lại ra đúng 200000, tức là không mất lần cập nhật nào. Điều đó không chứng minh rằng bỏ đồng bộ là an toàn, mà chỉ cho thấy race condition không phải lúc nào cũng biểu hiện. Ở lần chạy này, bốn process nhiều khả năng được scheduler xếp xen kẽ theo cách các thao tác đọc--sửa--ghi không chồng lên nhau, hoặc mỗi process kịp chạy trọn vòng lặp trước khi bị ngắt. So sánh với mục 8.4, nơi bốn thread trong cùng một process mất tới 70694 lần cập nhật, khác biệt là ở chỗ thread chia sẻ dữ liệu chặt hơn và chuyển ngữ cảnh giữa chúng xảy ra thường xuyên hơn.
+
+Bài học rút ra quan trọng hơn bản thân con số: một chương trình sai về đồng bộ vẫn có thể cho kết quả đúng trong nhiều lần chạy. Không thể dùng phép thử để chứng minh chương trình đồng bộ đúng, chỉ có thể dùng nó để chứng minh chương trình sai. Vì vậy trong mã sản phẩm, vùng \code{/dev/shm/ap6\_stats} của daemon luôn được bảo vệ bằng mutex, dù phép thử có bắt được lỗi hay không.
+
+Dự án còn xử lý thêm rủi ro đã nêu ở cuối mục này. Mutex đặt trong shared memory tại \code{src/common/stats.c} được khởi tạo với hai thuộc tính: \code{PTHREAD\_PROCESS\_SHARED} để mutex có hiệu lực xuyên process thay vì chỉ trong một process, và \code{PTHREAD\_MUTEX\_ROBUST} để khi process đang giữ khóa bị kill thì process kế tiếp nhận mã lỗi \code{EOWNERDEAD} và có thể khôi phục trạng thái, thay vì chờ vô hạn.
+
+\subsection{Socket như một cơ chế IPC}
+
+Socket không chỉ dùng cho giao tiếp qua mạng mà còn dùng cho IPC trên cùng máy. Unix domain socket cho phép các process trên cùng hệ thống trao đổi dữ liệu qua một endpoint trong filesystem. So với TCP socket, Unix domain socket không đi qua tầng IP nên hiệu quả hơn cho giao tiếp nội bộ.
+
+Trong Embedded Linux, Unix domain socket thường được dùng giữa web server, daemon quản lý và service hệ thống. TCP/UDP socket được dùng khi cần giao tiếp qua mạng LAN, WAN hoặc cloud. Socket có ưu điểm là mô hình client-server rõ ràng, hỗ trợ nhiều kết nối và dễ tích hợp với event loop bằng \code{select}, \code{poll} hoặc \code{epoll}.
+
+\subsection{Lựa chọn IPC trong thiết kế nhúng}
+
+Không có cơ chế IPC nào tốt nhất cho mọi bài toán. Pipe phù hợp cho dòng dữ liệu đơn giản. FIFO phù hợp khi cần tên cố định trong filesystem. Message queue phù hợp cho command/event có cấu trúc. Shared memory phù hợp cho dữ liệu lớn và yêu cầu tốc độ cao. Semaphore phù hợp cho đồng bộ. Socket phù hợp cho mô hình client-server hoặc giao tiếp mạng.
+
+Khi thiết kế hệ thống nhúng, cần cân nhắc kích thước dữ liệu, tần suất truyền, số process tham gia, yêu cầu realtime, khả năng phục hồi lỗi và độ phức tạp triển khai. Một thiết kế tốt thường kết hợp nhiều cơ chế IPC, ví dụ dùng socket để nhận lệnh điều khiển, message queue để phát event nội bộ và shared memory để truyền buffer lớn.
+
+Dự án đi kèm áp dụng đúng nguyên tắc kết hợp này và có thể tóm tắt trong bảng sau.
+
+\begin{center}
+\begin{tabular}{llp{6.2cm}}
+\toprule
+\textbf{Cơ chế} & \textbf{Dùng ở đâu} & \textbf{Lý do chọn} \\
+\midrule
+Unix domain socket & \code{apctl} $\rightarrow$ \code{apd} & Lệnh điều khiển có yêu cầu và phản hồi, nhiều client, dễ đưa vào \code{epoll} \\
+TCP socket & quản lý từ xa & Cùng giao thức lệnh nhưng qua mạng, phục vụ web UI hoặc cloud \\
+Shared memory & \code{apd} $\rightarrow$ \code{apmon} & Telemetry cập nhật liên tục, đọc nhiều lần, tránh copy qua kernel \\
+Signal & init/script $\rightarrow$ \code{apd} & Điều khiển vòng đời: reload cấu hình, dừng mềm \\
+Pipe & bên trong \code{apd} & Kỹ thuật self-pipe đưa signal về vòng lặp \code{epoll} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Signal trong Linux}
+
+\subsection{Khái niệm signal}
+
+Signal là cơ chế thông báo bất đồng bộ trong Linux. Nó cho phép kernel hoặc một process gửi thông báo đến process khác khi có sự kiện xảy ra. Signal không mang nhiều dữ liệu như message queue, nhưng rất hữu ích để báo các sự kiện như yêu cầu dừng chương trình, lỗi truy cập bộ nhớ, timer hết hạn hoặc process con kết thúc.
+
+Signal có thể được tạo ra từ nhiều nguồn. Người dùng nhấn \code{Ctrl+C} trong terminal thường tạo \code{SIGINT}. Lệnh \code{kill} có thể gửi signal đến một process theo PID. Kernel gửi \code{SIGSEGV} khi process truy cập bộ nhớ sai. Kernel gửi \code{SIGCHLD} cho process cha khi process con kết thúc. Timer có thể tạo \code{SIGALRM} khi đến thời điểm đã đặt.
+
+\subsection{Một số signal thường gặp}
+
+\code{SIGINT} thường được dùng để ngắt chương trình từ bàn phím. \code{SIGTERM} là yêu cầu kết thúc mềm, cho phép chương trình dọn dẹp trước khi thoát. \code{SIGKILL} buộc process kết thúc ngay và không thể bị bắt hoặc bỏ qua. \code{SIGSEGV} báo lỗi truy cập bộ nhớ không hợp lệ. \code{SIGCHLD} báo cho process cha biết process con đã kết thúc hoặc thay đổi trạng thái. \code{SIGALRM} được dùng với timer.
+
+Sự khác biệt giữa \code{SIGTERM} và \code{SIGKILL} rất quan trọng trong vận hành hệ thống. Khi dừng một daemon, nên gửi \code{SIGTERM} trước để nó có cơ hội đóng socket, ghi log, flush dữ liệu và giải phóng tài nguyên. Chỉ khi daemon không phản hồi mới dùng \code{SIGKILL}. Nếu thường xuyên dùng \code{SIGKILL}, hệ thống có thể để lại file tạm, lock file, shared memory hoặc trạng thái thiết bị chưa được dọn dẹp.
+
+\subsection{Xử lý signal bằng signal và sigaction}
+
+Chương trình có thể đăng ký handler để xử lý signal. Hàm \code{signal} đơn giản nhưng có một số khác biệt hành vi giữa các hệ thống. Hàm \code{sigaction} được khuyến nghị hơn vì cho phép cấu hình rõ ràng handler, mask và flags. Với \code{sigaction}, chương trình có thể xác định signal nào bị block trong lúc handler chạy và có thể nhận thêm thông tin về signal trong một số chế độ.
+
+Khi viết signal handler, cần cẩn thận vì handler có thể chạy bất kỳ lúc nào, chen vào luồng thực thi bình thường. Không phải hàm nào cũng an toàn để gọi trong signal handler. Trong chương trình thực tế, handler thường chỉ đặt một biến cờ kiểu \code{volatile sig\_atomic\_t}, sau đó vòng lặp chính kiểm tra cờ này và thực hiện dọn dẹp ở ngữ cảnh an toàn hơn.
+
+\subsection{Signal và quản lý process con}
+
+\code{SIGCHLD} có vai trò quan trọng khi một process tạo process con. Khi process con kết thúc, kernel gửi \code{SIGCHLD} cho process cha. Nếu process cha bỏ qua việc thu hồi exit status, process con có thể trở thành zombie. Vì vậy, nhiều daemon đăng ký handler cho \code{SIGCHLD} hoặc dùng vòng lặp \code{waitpid} để thu hồi process con.
+
+Trong một server hoặc service nhúng, nếu mỗi request hoặc mỗi tác vụ phụ tạo process con, việc xử lý \code{SIGCHLD} càng quan trọng. Không quản lý đúng signal này có thể làm hệ thống tích lũy zombie theo thời gian. Đây là ví dụ cho thấy signal liên hệ trực tiếp với phần process đã học.
+
+\subsection{Kết quả chạy: handler, SIGCHLD và dọn dẹp khi thoát}
+
+Chương trình \code{demos/10-signal/signal\_demo.c} đăng ký handler bằng \code{sigaction} cho \code{SIGTERM}, \code{SIGINT}, \code{SIGHUP}, \code{SIGALRM} và \code{SIGCHLD}, đồng thời bỏ qua \code{SIGPIPE}, rồi tạo ba process con và đặt một \code{alarm}.
+
+\begin{lstlisting}[caption={Nhận SIGCHLD từ ba process con và SIGALRM từ timer}]
+=== Signal trong Linux (pid=499806) ===
+Da dang ky handler cho TERM/INT/HUP/ALRM/CHLD, bo qua PIPE
+Da tao 3 process con (se ket thuc sau 0.2 - 0.6 giay)
+Da dat alarm(2) - mo phong timer cua daemon
+
+   [SIGCHLD] con 499807 thoat, exit=1
+   [SIGCHLD] con 499808 thoat, exit=2
+   [SIGCHLD] con 499809 thoat, exit=3
+   [SIGALRM] timer het han -> kiem tra trang thai
+
+[Het vong lap demo] Don dep:
+   - dong socket dieu khien
+   - ghi cau hinh xuong flash
+   - giai phong shared memory, xoa pid file
+   -> SIGKILL (kill -9) khong the bat, cac buoc tren se bi bo qua.
+\end{lstlisting}
+
+Ba process con kết thúc với ba mã thoát khác nhau và đều được thu hồi đủ, không để lại zombie. Việc bỏ qua \code{SIGPIPE} cũng là một quyết định thiết kế đáng chú ý: mặc định, khi ghi vào một socket mà phía bên kia đã đóng, kernel gửi \code{SIGPIPE} và process bị kết thúc. Với một daemon phục vụ nhiều client, một client thoát đột ngột không được phép làm chết cả service, nên đúng cách là bỏ qua signal này và xử lý mã lỗi \code{EPIPE} do \code{write} trả về.
+
+Phần cuối của output liệt kê chính xác những việc mà một daemon cần làm trước khi thoát, và cũng nói rõ giới hạn: \code{SIGKILL} không thể bắt được, nên toàn bộ các bước đó sẽ bị bỏ qua nếu dùng \code{kill -9}. Đây là lý do thực tế để một script khởi động dịch vụ luôn gửi \code{SIGTERM} trước và chỉ dùng \code{SIGKILL} sau một khoảng chờ.
+
+\subsection{Signal trong daemon Embedded Linux}
+
+Một daemon chạy trên Embedded Linux nên xử lý signal một cách có chủ đích. Khi nhận \code{SIGTERM}, daemon nên dừng nhận request mới, đóng socket, lưu trạng thái cần thiết, giải phóng shared memory, unlock tài nguyên và thoát với mã trạng thái rõ ràng. Khi nhận signal reload cấu hình, ví dụ \code{SIGHUP} trong một số thiết kế, daemon có thể đọc lại file cấu hình mà không cần restart toàn bộ process.
+
+Trong hệ thống router hoặc AP, signal thường xuất hiện khi service Wi-Fi restart, network reload hoặc hệ thống shutdown. Nếu daemon quản lý Wi-Fi không xử lý signal tốt, nó có thể để lại interface ở trạng thái không nhất quán hoặc không đóng kết nối quản lý. Vì vậy, signal là một phần nhỏ về mặt API nhưng rất quan trọng về độ ổn định vận hành.
+
+Daemon \code{apd} giải quyết bài toán khó nhất của signal, là làm sao đưa một sự kiện bất đồng bộ về ngữ cảnh an toàn, bằng kỹ thuật self-pipe. Handler không gọi \code{printf} hay \code{malloc}, vốn không phải hàm async-signal-safe và có thể gây deadlock nếu luồng chính đang giữ khóa nội bộ của glibc. Handler chỉ ghi đúng một byte vào một pipe nội bộ. Đầu đọc của pipe được đăng ký trong \code{epoll} cùng với các socket, nên vòng lặp chính đang chờ trong \code{epoll\_wait} sẽ thức dậy ngay và xử lý signal như một sự kiện I/O bình thường.
+
+\begin{lstlisting}[caption={Log daemon: SIGHUP nạp lại cấu hình, SIGTERM thoát có kiểm soát}]
+[21:24:24] INFO apd: reload: da nap lai profile tu /tmp/ap6-collect/ap6.dat
+[21:24:25] INFO apd: nhan yeu cau dung, bat dau don dep
+[21:24:25] INFO apd: thread telemetry ket thuc
+[21:24:25] INFO apd: apd da thoat (rc=0)
+
+--- kiem tra don dep sau khi thoat ---
+socket da duoc xoa: OK
+shared memory da duoc giai phong: OK
+\end{lstlisting}
+
+Điểm cần nhấn mạnh trong log này là thứ tự các dòng. Sau khi nhận \code{SIGTERM}, daemon không thoát ngay mà lần lượt dừng thread telemetry, đóng và xóa Unix domain socket, xóa pid file, giải phóng shared memory, rồi mới ghi dòng cuối cùng với mã thoát 0. Bộ test kiểm tra lại sau khi process đã biến mất và xác nhận không còn socket, không còn pid file, không còn vùng nhớ trong \code{/dev/shm}. Nếu thiếu bước dọn dẹp này, lần khởi động sau daemon sẽ gặp lỗi địa chỉ đã được sử dụng hoặc đọc phải trạng thái cũ, một lỗi rất hay gặp khi thiết bị restart service nhiều lần.
+
+\section{Linux Device Driver và giao tiếp với phần cứng}
+
+\subsection{Vai trò của device driver}
+
+Device driver là lớp mã kernel hiểu cả giao diện của Linux lẫn cách vận hành của một thiết bị cụ thể. Phía trên driver, kernel và ứng dụng muốn thao tác theo các khái niệm chung như đọc dữ liệu, gửi packet, cấu hình mode hoặc chờ event. Phía dưới driver là thanh ghi, vùng nhớ I/O, interrupt, DMA, bus và firmware của phần cứng. Driver chịu trách nhiệm chuyển đổi giữa hai thế giới đó.
+
+Một nguyên tắc thiết kế quan trọng là tách mechanism khỏi policy. Driver nên cung cấp khả năng truy cập phần cứng và thực thi các thao tác hợp lệ, còn quyết định sử dụng thiết bị theo cách nào nên đặt ở tầng user space hoặc subsystem cao hơn. Ví dụ, Wi-Fi driver cung cấp cơ chế đặt channel, tạo interface, truyền nhận frame và báo event; policy chọn SSID, lịch restart radio hoặc quyền người dùng thay đổi cấu hình thuộc về daemon và hệ thống quản lý.
+
+Sự phân tách này làm driver tái sử dụng được trong nhiều sản phẩm. Cùng một driver có thể phục vụ router gia đình, gateway công nghiệp hoặc thiết bị test, trong khi mỗi sản phẩm áp dụng policy riêng ở user space. Nếu driver hard-code quá nhiều policy, việc bảo trì và tích hợp với OpenWrt hoặc framework khác sẽ khó hơn.
+
+\subsection{Module kernel và vòng đời driver}
+
+Driver có thể được build trực tiếp vào kernel hoặc build thành loadable kernel module. Module cho phép nạp và gỡ mã kernel khi hệ thống đang chạy, thuận tiện trong phát triển và debug. Một module thường có hàm khởi tạo để đăng ký driver hoặc tài nguyên với kernel, và hàm cleanup để hủy đăng ký, giải phóng bộ nhớ, interrupt và các tài nguyên đã lấy.
+
+Vòng đời driver cần có tính đối xứng. Nếu bước khởi tạo đã request một vùng I/O, đăng ký interrupt, tạo device node hoặc cấp phát buffer, đường xử lý lỗi và hàm cleanup phải giải phóng đúng theo thứ tự ngược lại. Nếu bỏ sót, việc reload module có thể thất bại, tài nguyên kernel bị leak hoặc thiết bị còn ở trạng thái không xác định. Đây là nguyên nhân phổ biến khiến driver chạy được lần đầu nhưng lỗi sau vài lần load/unload.
+
+Module còn có thể nhận parameter để hỗ trợ debug hoặc chọn cấu hình khi nạp. Tuy nhiên, cấu hình phụ thuộc board thường nên được mô tả bằng Device Tree, ACPI hoặc dữ liệu từ bus thay vì hard-code trong source. Trên ARM Embedded Linux, hàm \code{probe} thường nhận tài nguyên đã được kernel phân tích từ Device Tree và tiến hành khởi tạo thiết bị.
+
+\subsection{Char, block và network driver}
+
+Linux thường phân loại driver theo cách dữ liệu được cung cấp cho hệ thống. Character driver biểu diễn dữ liệu như một dòng byte và thường được truy cập thông qua device node trong \code{/dev}. UART, GPIO character interface hoặc thiết bị đo lường đơn giản có thể dùng mô hình này. Block driver cung cấp các block dữ liệu có thể truy cập ngẫu nhiên và tham gia vào storage stack, ví dụ eMMC, SD hoặc disk. Network driver không chủ yếu cung cấp \code{read}/\code{write} qua device node mà kết nối với network stack để truyền nhận packet.
+
+Sự phân loại quyết định subsystem và callback mà driver phải triển khai. Character driver thường đăng ký major/minor number và một tập \code{file\_operations}. Block driver làm việc với request queue và block layer. Network driver đăng ký một network device, quản lý queue truyền nhận, thống kê và trạng thái link. Wi-Fi còn có thêm các lớp chuyên biệt như cfg80211/mac80211 hoặc vendor interface tùy kiến trúc driver.
+
+Đối với MediaTek AP, Ethernet và Wi-Fi nằm trong nhóm network device, nhưng hệ thống vẫn có thể cung cấp thêm char device, procfs, sysfs, debugfs hoặc ioctl để điều khiển và lấy trạng thái. Vì vậy, khi debug cần phân biệt data path truyền packet với control path cấu hình radio.
+
+\subsection{file\_operations và đường đi của lời gọi hệ thống}
+
+Với character driver, cấu trúc \code{file\_operations} liên kết các lời gọi từ user space với callback trong driver. Khi ứng dụng gọi \code{open}, VFS tìm device node và gọi hàm \code{open} của driver. Tương tự, \code{read}, \code{write}, \code{poll}, \code{mmap} hoặc \code{ioctl} được chuyển đến callback tương ứng nếu driver cung cấp.
+
+Callback driver phải tuân theo quy ước của kernel về giá trị trả về và mã lỗi. Hàm đọc có thể trả số byte đã đọc, trả 0 khi hết dữ liệu theo ngữ nghĩa phù hợp, hoặc trả giá trị âm biểu diễn lỗi. Khi trao đổi buffer với user space, driver không nên dereference trực tiếp con trỏ user. Nó phải dùng các helper như \code{copy\_to\_user} và \code{copy\_from\_user} để kernel kiểm tra và xử lý lỗi truy cập.
+
+Nếu chưa có dữ liệu, driver có thể đưa process gọi \code{read} vào wait queue thay vì busy-wait. Khi interrupt hoặc một event khác báo dữ liệu đã sẵn sàng, driver đánh thức process. Cơ chế này kết nối trực tiếp các phần đã học: system call đi vào driver, process chuyển sang sleeping, interrupt cập nhật trạng thái, wait queue đánh thức process và scheduler cho process tiếp tục.
+
+\subsection{Concurrency và bảo vệ dữ liệu trong kernel}
+
+Driver có thể được truy cập đồng thời từ nhiều nguồn: nhiều process user space, nhiều thread, interrupt handler, timer, workqueue hoặc nhiều CPU. Vì vậy, biến toàn cục hoặc cấu trúc thiết bị không thể được giả định chỉ có một luồng sử dụng. Race condition trong kernel nguy hiểm hơn user space vì có thể làm hỏng dữ liệu chung hoặc gây kernel panic.
+
+Mutex phù hợp cho ngữ cảnh process khi code có thể ngủ. Spinlock phù hợp cho critical section rất ngắn hoặc dữ liệu được chia sẻ với interrupt context, nơi không được phép ngủ. Atomic operation phù hợp cho counter hoặc thay đổi trạng thái nhỏ. Wait queue và completion dùng để chờ event. Việc chọn sai primitive có thể dẫn đến deadlock, sleep trong atomic context hoặc giữ interrupt quá lâu.
+
+Quy tắc thực tế là xác định rõ dữ liệu nào được chia sẻ, các context nào có thể truy cập và thứ tự lock. Driver cũng cần tránh gọi hàm có thể ngủ trong khi đang giữ spinlock hoặc ở interrupt handler. Các nguyên lý race condition, critical section và deadlock từ lập trình thread vì vậy tiếp tục áp dụng ở kernel, nhưng yêu cầu nghiêm ngặt hơn.
+
+\subsection{I/O memory, thanh ghi và memory barrier}
+
+Nhiều thiết bị nhúng được điều khiển qua các thanh ghi memory-mapped I/O. Device Tree cung cấp địa chỉ vật lý và kích thước vùng thanh ghi; driver nhận tài nguyên, request vùng tương ứng và ánh xạ nó vào không gian địa chỉ kernel bằng cơ chế như \code{ioremap} hoặc helper quản lý tài nguyên. Sau đó driver dùng các accessor như \code{readl} và \code{writel} thay vì dereference con trỏ thông thường.
+
+Các accessor tồn tại vì truy cập I/O không hoàn toàn giống truy cập RAM. Kiến trúc CPU có thể khác nhau về endianness, thứ tự thực thi và cách ánh xạ bus. Compiler hoặc CPU có thể reorder thao tác bộ nhớ nếu không có ràng buộc phù hợp. Driver phải dùng API I/O và memory barrier đúng để đảm bảo thiết bị nhìn thấy các thao tác theo thứ tự yêu cầu.
+
+Địa chỉ load kernel hay địa chỉ thanh ghi trong tài liệu SoC là địa chỉ vật lý, trong khi con trỏ driver thường là địa chỉ ảo kernel sau mapping. Nhầm lẫn hai loại địa chỉ là lỗi phổ biến khi mới làm Embedded Linux. Driver cũng phải request tài nguyên trước khi sử dụng để tránh hai driver cùng điều khiển một vùng phần cứng.
+
+\subsection{Interrupt và deferred work}
+
+Thiết bị sử dụng interrupt để báo sự kiện như nhận xong packet, hoàn tất DMA, có dữ liệu UART hoặc phát hiện lỗi. Driver đăng ký interrupt handler với kernel. Handler cần xác định interrupt có thuộc thiết bị của mình không, xác nhận hoặc clear nguồn interrupt và lưu trạng thái tối thiểu cần thiết.
+
+Interrupt handler không được thực hiện công việc dài hoặc gọi hàm có thể ngủ. Phần xử lý nặng thường được chuyển sang threaded interrupt, workqueue, tasklet trong các thiết kế cũ, NAPI đối với network driver hoặc một cơ chế deferred work phù hợp. Với network driver, NAPI giúp chuyển từ xử lý từng packet bằng interrupt sang polling có kiểm soát khi lưu lượng cao, giảm interrupt storm và tăng throughput.
+
+Thiết kế interrupt sai có thể gây treo hệ thống hoặc tiêu tốn CPU. Nếu không clear nguồn interrupt, CPU có thể liên tục vào handler. Nếu khóa dùng giữa handler và process context không đúng, deadlock có thể xảy ra. Nếu driver đánh thức process trước khi buffer hoàn tất, user space có thể nhận dữ liệu không nhất quán.
+
+\subsection{DMA và quản lý buffer}
+
+Thiết bị tốc độ cao như Ethernet, Wi-Fi, USB hoặc storage thường dùng DMA để truyền dữ liệu giữa thiết bị và RAM mà không yêu cầu CPU copy từng byte. Driver chuẩn bị descriptor và buffer, ánh xạ buffer cho DMA, thông báo thiết bị bắt đầu, sau đó nhận interrupt hoặc poll trạng thái khi hoàn tất.
+
+DMA đặt ra vấn đề về địa chỉ và cache coherency. Địa chỉ CPU dùng không nhất thiết là địa chỉ thiết bị nhìn thấy. Driver phải dùng DMA API để lấy DMA address phù hợp và đồng bộ cache theo đúng hướng truyền. Không nên chuyển trực tiếp địa chỉ ảo từ \code{kmalloc} cho phần cứng rồi giả định nó luôn hoạt động trên mọi SoC.
+
+Trong data path của MediaTek AP, packet có thể đi qua nhiều queue và DMA ring giữa CPU với Wi-Fi/Ethernet hardware. Khi throughput thấp hoặc mất packet, ngoài cấu hình SoftAP còn phải kiểm tra descriptor, interrupt, queue stop/wake, DMA mapping và cache coherency. Đây là lớp thấp hơn so với \code{iwpriv} hoặc daemon cấu hình nhưng có ảnh hưởng trực tiếp đến hiệu năng.
+
+\subsection{Linux device model, bus, device và driver}
+
+Linux device model biểu diễn quan hệ giữa bus, device và driver. Một bus hoặc subsystem phát hiện device; driver khai báo bảng định danh hoặc chuỗi \code{compatible}; kernel thực hiện matching và gọi \code{probe} khi tìm thấy cặp phù hợp. Khi device bị gỡ hoặc driver unload, callback \code{remove} thực hiện cleanup.
+
+Kobject, sysfs và uevent giúp biểu diễn cấu trúc thiết bị ra user space. Thư mục dưới \code{/sys} cho phép quan sát driver nào đang bind, thuộc bus nào và có các attribute gì. Hotplug event cho phép user space phản ứng khi thiết bị xuất hiện. Trên board ARM không tự mô tả phần cứng, Device Tree cung cấp các node để platform bus tạo device và matching với driver.
+
+Khi một peripheral không hoạt động, kiểm tra \code{/sys}, log \code{probe}, thuộc tính \code{compatible}, clock, reset, regulator, pinctrl và interrupt thường hiệu quả hơn việc chỉ nhìn device node. Device node không xuất hiện có thể là hậu quả của driver chưa probe, không phải nguyên nhân ban đầu.
+
+\subsection{Kết quả chạy: character driver ap6sim}
+
+Để các nguyên lý ở trên không dừng ở mức mô tả, dự án hiện thực một character driver mô phỏng control path của chip Wi-Fi, đặt tại \code{kernel/ap6sim/ap6sim.c}. Driver này không điều khiển phần cứng thật, nhưng dùng đúng các API và đúng mô hình mà một driver thật phải dùng.
+
+\begin{lstlisting}[caption={Kết quả biên dịch module trên kernel đang chạy}]
+$ make module
+[build_module] da tao: kernel/ap6sim/ap6sim.ko
+
+$ modinfo ap6sim.ko
+version:        1.0
+description:    Char driver mo phong control path cua Wi-Fi AP (AP 6)
+license:        GPL
+depends:
+name:           ap6sim
+vermagic:       7.0.0-29-generic SMP preempt mod_unload modversions
+parm:           channel:Kenh Wi-Fi khoi tao (mac dinh 6) (uint)
+parm:           sim_events:Sinh event dinh ky de mo phong interrupt (bool)
+\end{lstlisting}
+
+Trường \code{vermagic} trong kết quả \code{modinfo} minh họa một đặc điểm quan trọng của module kernel: module gắn chặt với phiên bản kernel và cấu hình đã biên dịch nó. Nạp một module có \code{vermagic} không khớp sẽ bị từ chối. Đây là lý do khi phát triển cho board, module phải được biên dịch bằng đúng kernel source hoặc kernel headers của board đó, chứ không thể lấy module từ máy phát triển đem sang.
+
+Các thành phần của driver ánh xạ trực tiếp sang các mục lý thuyết ở trên và được tóm tắt trong bảng dưới đây.
+
+\begin{center}
+\begin{tabular}{lp{4.3cm}p{5.1cm}}
+\toprule
+\textbf{Mục} & \textbf{Cơ chế kernel} & \textbf{Hiện thực trong \code{ap6sim}} \\
+\midrule
+11.2 & init/exit đối xứng & Đường lỗi dùng \code{goto err\_*}, giải phóng ngược thứ tự cấp phát \\
+11.3--11.4 & \code{file\_operations}, \code{copy\_to\_user} & \code{open}, \code{read}, \code{write}, \code{unlocked\_ioctl} trên \code{/dev/ap6sim} \\
+11.4 & wait queue & \code{read} không có event thì ngủ trên \code{wait\_event\_interruptible} \\
+11.5 & mutex cho process context, spinlock cho interrupt context & \code{cfg\_lock} là mutex bảo vệ cấu hình, \code{evt\_lock} là spinlock chia sẻ với timer \\
+11.7 & interrupt ngắn + deferred work & Timer đóng vai nguồn interrupt, phần việc dài đẩy sang \code{schedule\_work} \\
+11.9 & device model & \code{class\_create} và \code{device\_create} sinh \code{/sys/class/ap6sim} \\
+11.11 & quan sát và debug & \code{proc\_create} cho \code{/proc/ap6sim}, \code{pr\_info} ra \code{dmesg} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Điểm liên kết đáng chú ý nhất giữa mục 11.5 và mục 8 là lý do phải dùng hai loại khóa khác nhau trong cùng một driver. Cấu hình radio được sửa từ ngữ cảnh process, khi user space gọi \code{ioctl}, nên có thể dùng mutex và cho phép ngủ. Ngược lại, hàng đợi event được cập nhật từ hàm callback của timer, nơi không được phép ngủ, nên bắt buộc phải dùng spinlock kèm \code{irqsave}. Dùng nhầm mutex ở ngữ cảnh này sẽ gây lỗi ngủ trong atomic context và có thể làm treo hệ thống.
+
+Trong lần thu thập kết quả này, module đã biên dịch thành công nhưng chưa được nạp vào kernel vì thao tác \code{insmod} cần quyền quản trị; bộ test vì vậy đánh dấu nhóm test số 6 là \code{SKIP}. Khi module được nạp, daemon \code{apd} tự phát hiện sự tồn tại của \code{/dev/ap6sim} và chuyển control path từ chế độ mô phỏng sang \code{ioctl} thật xuống kernel, có thể kiểm chứng bằng dòng \code{backend=} trong kết quả \code{apctl STATUS}.
+
+\subsection{Debug driver và liên hệ MediaTek AP}
+
+Debug kernel driver cần nhiều lớp quan sát. Log từ \code{dmesg} giúp xác định module load, probe, firmware load và lỗi tài nguyên. Sysfs cho biết device-driver binding. Procfs, debugfs hoặc công cụ vendor có thể cung cấp counter. Dynamic debug, ftrace, perf và crash dump hỗ trợ phân tích sâu hơn. Với lỗi nghiêm trọng, kernel oops và stack trace cho biết context, function và module liên quan.
+
+Trên MediaTek AP, control path có thể đi từ UCI hoặc web UI đến daemon, script, lệnh vendor hoặc ioctl rồi xuống Wi-Fi driver. Data path đi từ network stack qua driver, queue, DMA và radio hardware. Tách hai đường này giúp khoanh vùng lỗi: đổi SSID không có hiệu lực thường thuộc control path; throughput thấp, TX timeout hoặc mất packet thường liên quan data path, interrupt, DMA, queue hoặc firmware.
+
+Các tài liệu device driver dù mô tả một phiên bản kernel cũ vẫn cung cấp các nguyên lý bền vững: driver nên hạn chế policy, quản lý vòng đời tài nguyên đối xứng, xử lý concurrency rõ ràng, dùng API kernel thay vì truy cập phần cứng tùy tiện và giữ interrupt handler ngắn. Khi áp dụng thực tế cần đối chiếu API với kernel tree và BSP đang dùng vì tên hàm, subsystem và cơ chế nội bộ có thể đã thay đổi.
+
+Chính dự án này gặp lại đúng vấn đề vừa nêu. Mã ban đầu viết theo tài liệu tham khảo không biên dịch được trên kernel 7.0 vì một số API đã đổi: \code{from\_timer} được thay bằng \code{timer\_container\_of}, \code{del\_timer\_sync} được thay bằng \code{timer\_delete\_sync}, \code{no\_llseek} bị gỡ bỏ khỏi kernel, và \code{class\_create} đổi số tham số. Giải pháp là dùng macro kiểm tra \code{LINUX\_VERSION\_CODE} để chọn API phù hợp theo phiên bản. Đây là minh chứng cụ thể cho nhận xét ở đoạn trên: nguyên lý của device driver ổn định theo thời gian, còn API cụ thể thì không.
+
+\section{Git và quy trình làm việc nhóm}
+
+Git là công cụ quản lý phiên bản phân tán, giúp theo dõi lịch sử thay đổi mã nguồn và hỗ trợ làm việc nhóm. Trong dự án Embedded Linux, Git không chỉ quản lý source code ứng dụng mà còn quản lý script build, cấu hình board, file Device Tree, tài liệu kỹ thuật và đôi khi cả các patch dành cho kernel hoặc bootloader.
+
+Quy trình làm việc với Git thường bắt đầu từ việc tạo nhánh mới cho một tính năng hoặc một lỗi cần sửa. Lập trình viên thay đổi mã nguồn, dùng \code{git add} để đưa thay đổi vào staging area và \code{git commit} để ghi lại một snapshot có ý nghĩa. Sau đó, nhánh được đẩy lên remote repository bằng \code{git push}. Trong môi trường GitLab, lập trình viên thường tạo Merge Request để yêu cầu review trước khi gộp vào nhánh chính. CI/CD pipeline có thể tự động build và chạy test để phát hiện lỗi sớm.
+
+Việc không commit trực tiếp lên nhánh chính giúp giảm rủi ro làm hỏng codebase chung. Các thao tác như \code{git fetch}, \code{git pull}, \code{git rebase}, \code{git stash}, \code{git cherry-pick}, \code{git revert} và \code{git reset} hỗ trợ xử lý nhiều tình huống khác nhau trong quá trình phát triển. Tuy nhiên, các lệnh thay đổi lịch sử như \code{reset} hoặc \code{push --force} cần được dùng cẩn trọng, đặc biệt khi nhánh đã được chia sẻ với người khác.
+
+Trong dự án đi kèm, quy ước làm việc được ghi lại trong \code{docs/git-workflow.md}: mỗi tính năng nằm trên một nhánh riêng đặt tên theo dạng \code{feature/<mo-ta>} hoặc \code{fix/<mo-ta>}, thông điệp commit viết theo dạng mệnh lệnh và nêu rõ phạm vi thay đổi, và mọi thay đổi phải chạy qua \code{make test} trước khi tạo Merge Request. Bộ 53 test case tự động chính là thứ làm quy ước cuối cùng này khả thi: người review không cần chạy tay từng demo mà chỉ cần xem kết quả của một lệnh.
+
+\section{Socket Programming bằng C trên Linux}
+
+\subsection{Vai trò của socket trong Linux Programming}
+
+Socket programming là một nội dung quan trọng trong Linux Programming vì nó cung cấp cơ chế giao tiếp giữa các tiến trình thông qua giao diện mạng hoặc ngay trong cùng một máy. Nếu pipe, FIFO hay shared memory thường được dùng cho các tiến trình cục bộ, socket mở rộng khả năng giao tiếp ra môi trường mạng, cho phép một chương trình trên thiết bị này trao đổi dữ liệu với chương trình trên thiết bị khác. Trong Embedded Linux, socket thường xuất hiện trong các ứng dụng gateway, router, thiết bị IoT, hệ thống giám sát, dịch vụ điều khiển từ xa hoặc daemon trao đổi dữ liệu với server trung tâm.
+
+Về bản chất, socket có thể được xem như một điểm cuối của kênh truyền thông. Chương trình C thao tác với socket thông qua file descriptor, tương tự như khi thao tác với file hoặc thiết bị trong Linux. Điều này thể hiện rõ triết lý ``everything is a file'' của Unix/Linux: sau khi socket được tạo, lập trình viên có thể dùng các lời gọi hệ thống như \code{read}, \code{write}, \code{send}, \code{recv} hoặc \code{close} để trao đổi dữ liệu và giải phóng tài nguyên. Nhờ đó, socket trở thành cầu nối tự nhiên giữa kiến thức system call, process, IPC và lập trình mạng.
+
+\subsection{TCP socket và UDP socket}
+
+Trong lập trình mạng C, hai kiểu socket thường gặp nhất là TCP socket và UDP socket. TCP là giao thức hướng kết nối, đảm bảo dữ liệu được truyền theo thứ tự, có kiểm soát lỗi và có cơ chế truyền lại khi mất gói. Vì vậy, TCP phù hợp với các ứng dụng cần độ tin cậy cao như truyền file, giao tiếp client-server, cấu hình thiết bị hoặc các giao thức ứng dụng yêu cầu dữ liệu đầy đủ. Tuy nhiên, TCP có chi phí lớn hơn vì cần thiết lập kết nối, duy trì trạng thái và xử lý cơ chế kiểm soát luồng.
+
+UDP là giao thức không hướng kết nối. Khi dùng UDP, chương trình gửi datagram đến địa chỉ đích mà không cần thiết lập kết nối trước. UDP không đảm bảo gói tin đến nơi, không đảm bảo thứ tự và không tự truyền lại khi mất gói. Đổi lại, UDP đơn giản hơn, độ trễ thấp hơn và phù hợp với các tình huống như truyền dữ liệu cảm biến định kỳ, log nhẹ, broadcast/multicast trong mạng nội bộ hoặc các ứng dụng tự xây dựng cơ chế kiểm soát lỗi ở tầng trên. Trong hệ thống nhúng, việc chọn TCP hay UDP phụ thuộc vào yêu cầu về độ tin cậy, độ trễ, băng thông và tài nguyên xử lý của thiết bị.
+
+\subsection{Luồng hoạt động của chương trình server và client}
+
+Một chương trình TCP server thường bắt đầu bằng lời gọi \code{socket} để tạo socket endpoint. Sau đó, server dùng \code{bind} để gắn socket với địa chỉ IP và port cục bộ, dùng \code{listen} để chuyển socket sang trạng thái chờ kết nối và dùng \code{accept} để nhận kết nối từ client. Khi kết nối được chấp nhận, server nhận được một file descriptor mới đại diện cho phiên giao tiếp với client đó. Từ thời điểm này, server có thể dùng \code{send}/\code{recv} hoặc \code{read}/\code{write} để trao đổi dữ liệu. Khi kết thúc, server đóng socket bằng \code{close}.
+
+Ở phía client, luồng hoạt động thường ngắn hơn. Client tạo socket bằng \code{socket}, sau đó gọi \code{connect} để kết nối đến IP và port của server. Nếu kết nối thành công, client trao đổi dữ liệu với server và đóng socket khi hoàn tất. Với UDP, luồng chương trình đơn giản hơn vì không cần \code{listen}, \code{accept} hay \code{connect} bắt buộc; chương trình thường dùng \code{sendto} và \code{recvfrom} để gửi nhận từng datagram.
+
+\begin{center}
+\begin{tikzpicture}[
+    node distance=1.05cm,
+    every node/.style={draw, rounded corners, align=center, minimum width=4.3cm, minimum height=0.65cm},
+    arrow/.style={-{Latex[length=3mm]}, thick}
+]
+\node (ssocket) {Server: \code{socket}};
+\node (bind) [below=of ssocket] {\code{bind}};
+\node (listen) [below=of bind] {\code{listen}};
+\node (accept) [below=of listen] {\code{accept}};
+\node (sio) [below=of accept] {\code{send}/\code{recv}};
+
+\node (csocket) [right=2.7cm of ssocket] {Client: \code{socket}};
+\node (connect) [below=2.1cm of csocket] {\code{connect}};
+\node (cio) [below=2.1cm of connect] {\code{send}/\code{recv}};
+
+\draw[arrow] (ssocket) -- (bind);
+\draw[arrow] (bind) -- (listen);
+\draw[arrow] (listen) -- (accept);
+\draw[arrow] (accept) -- (sio);
+\draw[arrow] (csocket) -- (connect);
+\draw[arrow] (connect) -- (cio);
+\draw[arrow] (connect.west) -- (accept.east);
+\draw[arrow] (cio.west) -- (sio.east);
+\end{tikzpicture}
+\end{center}
+
+\subsection{Kết quả chạy: TCP echo server và UDP telemetry}
+
+Hai chương trình trong \code{demos/13-socket/} hiện thực đúng hai luồng vừa mô tả. Server TCP dùng \code{poll} để phục vụ nhiều client cùng lúc trong một luồng duy nhất, còn cặp chương trình UDP mô phỏng cách một AP gửi số liệu định kỳ về máy thu thập.
+
+\begin{lstlisting}[caption={TCP echo: server và client chạy song song}]
+--- phia client ---
+Da ket noi 127.0.0.1:19300
+Da gui 19 byte: xin chao tu client
+Nhan lai 19 byte: xin chao tu client
+
+--- phia server ---
+TCP echo server dang nghe tren 0.0.0.0:19300 (Ctrl+C de dung)
+  + client 127.0.0.1:47146 (fd=4)
+  fd=4 nhan 19 byte: xin chao tu client
+  - dong fd=4
+Dung server. Tong so ket noi da phuc vu: 1
+\end{lstlisting}
+
+Kết quả cho thấy vài chi tiết đáng chú ý. Server lắng nghe trên \code{0.0.0.0}, nghĩa là mọi interface, trong khi client kết nối tới \code{127.0.0.1}; đây là điểm cần lưu ý khi triển khai trên AP vì nếu daemon chỉ bind vào \code{127.0.0.1} thì máy khác trong mạng LAN sẽ không kết nối được. Client được cấp port tạm 47146 do kernel tự chọn, còn server dùng port cố định 19300. File descriptor của kết nối là 4, tách biệt hoàn toàn với fd của socket đang lắng nghe, đúng như mô tả ở mục 13.3: \code{accept} sinh ra một fd mới cho mỗi phiên.
+
+\begin{lstlisting}[caption={UDP telemetry: gửi datagram định kỳ, không cần kết nối}]
+--- phia gui ---
+  gui: ap6 telemetry seq=1 clients=1 channel=6 noise=-91
+  gui: ap6 telemetry seq=2 clients=2 channel=6 noise=-92
+  gui: ap6 telemetry seq=3 clients=3 channel=6 noise=-93
+
+--- phia thu thap ---
+UDP collector dang nghe udp/19301 (Ctrl+C de dung)
+  [127.0.0.1:33238] ap6 telemetry seq=1 clients=1 channel=6 noise=-91
+  [127.0.0.1:33238] ap6 telemetry seq=2 clients=2 channel=6 noise=-92
+  [127.0.0.1:33238] ap6 telemetry seq=3 clients=3 channel=6 noise=-93
+Da nhan 3 datagram
+\end{lstlisting}
+
+Với UDP, bên gửi không hề gọi \code{connect} và bên nhận không hề gọi \code{accept}, nhưng dữ liệu vẫn tới nơi. Mỗi lần \code{recvfrom} trả về trọn vẹn một datagram kèm địa chỉ nguồn, nên bên thu thập biết ngay số liệu đến từ đâu mà không cần duy trì trạng thái kết nối. Trường \code{seq} trong bản tin là chi tiết thiết kế quan trọng: vì UDP không đảm bảo gói tin đến nơi và không đảm bảo thứ tự, ứng dụng phải tự đánh số để phát hiện mất gói. Với telemetry của một AP, mất một mẫu số liệu là chấp nhận được, còn với lệnh cấu hình thì không, và đó là ranh giới để chọn giữa UDP và TCP.
+
+\subsection{Những vấn đề cần chú ý khi lập trình socket C}
+
+Khi lập trình socket bằng C, người học cần chú ý đến nhiều vấn đề thực tế. Thứ nhất là biểu diễn địa chỉ mạng. Các cấu trúc như \code{struct sockaddr\_in}, \code{inet\_pton} và \code{htons} được dùng để chuyển đổi địa chỉ IP, port và thứ tự byte giữa host byte order và network byte order. Nếu xử lý sai byte order, chương trình có thể kết nối nhầm port hoặc không giao tiếp được. Vấn đề này càng dễ bị bỏ sót khi phát triển trên PC x86 và triển khai lên board có kiến trúc khác, ví dụ MIPS big-endian, vì trên máy little-endian một lỗi thiếu \code{htons} có thể vẫn chạy sai một cách âm thầm.
+
+Thứ hai là vấn đề blocking và non-blocking I/O. Theo mặc định, nhiều lời gọi socket có thể chặn chương trình cho đến khi có dữ liệu hoặc đến khi kết nối hoàn tất. Với chương trình đơn giản, blocking I/O dễ viết và dễ hiểu. Tuy nhiên, với server cần phục vụ nhiều client hoặc daemon nhúng cần xử lý đồng thời nhiều nguồn dữ liệu, lập trình viên cần cân nhắc dùng thread, \code{select}, \code{poll}, \code{epoll} hoặc non-blocking socket. Đây là điểm liên hệ trực tiếp giữa socket programming, thread, process và IPC.
+
+Thứ ba là xử lý lỗi và đóng tài nguyên. Các lời gọi như \code{socket}, \code{bind}, \code{connect}, \code{send} và \code{recv} đều có thể thất bại. Chương trình cần kiểm tra giá trị trả về, dùng \code{errno} khi cần, đóng file descriptor đúng lúc và xử lý trường hợp peer đóng kết nối. Trong Embedded Linux, việc bỏ sót đóng socket hoặc tạo kết nối lặp lại không kiểm soát có thể làm cạn file descriptor, tăng bộ nhớ sử dụng và gây mất ổn định hệ thống chạy lâu dài.
+
+Daemon \code{apd} tại \code{src/apd/server.c} áp dụng đồng thời cả ba nhóm lưu ý trên và có thể xem như bản tổng hợp thực tế của mục này. Nó dùng \code{epoll} để theo dõi cùng lúc socket Unix, socket TCP, self-pipe của signal và tất cả kết nối client trong một vòng lặp duy nhất. Nó dùng \code{accept4} với cờ \code{SOCK\_NONBLOCK} và \code{SOCK\_CLOEXEC} để vừa tránh bị chặn, vừa bảo đảm fd không rò rỉ sang chương trình con khi \code{exec}. Nó coi \code{EAGAIN} và \code{EINTR} là tình huống bình thường chứ không phải lỗi. Nó đặt \code{SO\_REUSEADDR} trên socket TCP để service restart được ngay mà không vướng trạng thái \code{TIME\_WAIT}. Ở phía ngược lại, \code{apctl} đặt \code{SO\_RCVTIMEO} để công cụ dòng lệnh không treo vô hạn nếu daemon không phản hồi, một chi tiết quan trọng khi lệnh được gọi từ script khởi động của thiết bị.
+
+\section{OpenWrt trong hệ sinh thái Embedded Linux}
+
+\subsection{Tổng quan về OpenWrt}
+
+OpenWrt là một hệ điều hành Linux dành cho các thiết bị mạng nhúng, đặc biệt phổ biến trên router, access point, gateway và các thiết bị có chức năng định tuyến. Khác với firmware đóng của nhiều nhà sản xuất, OpenWrt cung cấp một môi trường Linux linh hoạt, có hệ thống quản lý gói, cấu hình rõ ràng và khả năng tùy biến cao. Điều này giúp người phát triển có thể biến một thiết bị mạng nhỏ thành nền tảng thử nghiệm cho firewall, routing, VPN, QoS, monitoring, IoT gateway hoặc các dịch vụ mạng riêng.
+
+Về mặt Embedded Linux, OpenWrt là một ví dụ thực tế rất phù hợp vì nó thể hiện đầy đủ các thành phần của một hệ thống nhúng chạy Linux: bootloader, kernel, root filesystem, init system, cấu hình mạng, package manager và các daemon user space. Khi làm việc với OpenWrt, người học không chỉ chạy ứng dụng C mà còn phải quan tâm đến cách ứng dụng được đóng gói, cách service được khởi động, cách cấu hình được lưu trong hệ thống và cách thiết bị giao tiếp với mạng.
+
+\subsection{Kiến trúc phần mềm của OpenWrt}
+
+Một hệ thống OpenWrt thường có kernel Linux được cấu hình cho phần cứng mục tiêu, root filesystem tối giản và tập các dịch vụ mạng cần thiết. OpenWrt sử dụng BusyBox để cung cấp nhiều lệnh Unix cơ bản trong một binary nhỏ, phù hợp với thiết bị hạn chế bộ nhớ. Hệ thống cấu hình của OpenWrt thường xoay quanh UCI (Unified Configuration Interface), cho phép cấu hình network, wireless, firewall, DHCP hoặc các service khác theo một dạng thống nhất.
+
+OpenWrt cũng có hệ thống quản lý gói thông qua \code{opkg}. Nhờ \code{opkg}, người dùng có thể cài thêm hoặc gỡ bỏ các package phù hợp với dung lượng flash và RAM của thiết bị. Đối với lập trình viên, điều này có nghĩa là ứng dụng tự viết có thể được đóng gói thành package, khai báo phụ thuộc thư viện và cài đặt lên thiết bị theo cách có kiểm soát thay vì copy thủ công từng file.
+
+Ở tầng khởi động dịch vụ, OpenWrt thường dùng \code{procd} làm init và process supervisor. \code{procd} chịu trách nhiệm khởi động service, theo dõi tiến trình, xử lý hotplug và phối hợp với các script trong hệ thống. Đây là điểm khác biệt đáng chú ý so với nhiều bản phân phối Linux desktop/server dùng systemd. Vì vậy, khi chuyển kiến thức Linux Programming sang OpenWrt, người học cần hiểu rằng chương trình C không chỉ được biên dịch đúng mà còn cần được tích hợp đúng vào cơ chế service của hệ thống.
+
+\subsection{Phát triển ứng dụng C trên OpenWrt}
+
+Phát triển ứng dụng C cho OpenWrt thường liên quan đến cross-compilation. Thiết bị OpenWrt có thể dùng kiến trúc MIPS, ARM, x86 hoặc một kiến trúc khác, trong khi máy phát triển thường là PC x86\_64. Vì vậy, ứng dụng cần được biên dịch bằng toolchain phù hợp với target. OpenWrt Build System cung cấp môi trường để cấu hình target, chọn package, biên dịch kernel, root filesystem và tạo firmware image.
+
+Khi viết ứng dụng C cho OpenWrt, các kiến thức Basic C và Linux Programming được sử dụng trực tiếp. Quá trình preprocessing, compilation, assembly và linking quyết định binary cuối cùng có chạy được trên target hay không. Memory layout và virtual memory giúp phân tích lỗi runtime trên thiết bị có RAM nhỏ. System call giúp ứng dụng đọc ghi file cấu hình, thao tác socket, giao tiếp với device node hoặc ghi log. Process, signal và IPC giúp ứng dụng hoạt động như một daemon ổn định. Socket programming đặc biệt quan trọng vì OpenWrt là nền tảng mạng; nhiều ứng dụng trên OpenWrt cần mở TCP server, gửi UDP packet, giao tiếp HTTP, nhận dữ liệu từ LAN/WAN hoặc trao đổi thông tin với cloud server.
+
+\subsection{Kết quả: đóng gói ứng dụng thành package OpenWrt}
+
+Thư mục \code{openwrt/package/ap6ctl/} trong dự án là một package OpenWrt hoàn chỉnh cho ba chương trình đã trình bày ở các mục trước, gồm bốn thành phần: recipe \code{Makefile} khai báo tên, phiên bản, phụ thuộc và danh sách file cài đặt; init script kiểu procd; file cấu hình UCI; và profile SoftAP mặc định.
+
+Điểm cần chú ý về mặt kỹ thuật là init script của OpenWrt không giống unit file của systemd. Nó khai báo \code{USE\_PROCD=1}, đặt thứ tự khởi động bằng \code{START} và \code{STOP}, rồi trong hàm \code{start\_service} đọc cấu hình từ UCI bằng \code{config\_load} và \code{config\_get} trước khi khởi chạy chương trình. Nhờ đó, người dùng thay đổi tham số bằng lệnh \code{uci set} và \code{uci commit}, còn procd chịu trách nhiệm reload service. Đường đi đầy đủ của một thay đổi cấu hình trên thiết bị vì vậy là: giao diện LuCI hoặc dòng lệnh, xuống UCI, xuống init script, xuống daemon \code{apd}, rồi xuống driver Wi-Fi bằng \code{ioctl} hoặc \code{iwpriv}.
+
+\begin{lstlisting}[caption={Cross-compile và cài đặt package lên thiết bị}]
+# Cach 1: qua OpenWrt Build System
+cp -r openwrt/package/ap6ctl <openwrt>/package/utils/
+make menuconfig                 # Utilities ---> <*> ap6ctl
+make package/ap6ctl/compile V=s
+scp bin/packages/*/base/ap6ctl_*.ipk root@192.168.1.1:/tmp
+opkg install /tmp/ap6ctl_*.ipk
+/etc/init.d/ap6d enable && /etc/init.d/ap6d start
+
+# Cach 2: cross-compile truc tiep bang toolchain
+make CROSS_COMPILE=arm-linux-gnueabihf-
+make CC=mipsel-openwrt-linux-gcc
+\end{lstlisting}
+
+Cần nói rõ giới hạn: package này đã được viết đầy đủ và \code{Makefile} của dự án có hỗ trợ biến \code{CROSS\_COMPILE}, nhưng trong khuôn khổ kỳ thực tập, chương trình chưa được biên dịch chéo và cài đặt lên một thiết bị OpenWrt thật. Toàn bộ kết quả chạy trong báo cáo là trên máy x86\_64. Việc kiểm chứng trên thiết bị thật là bước tiếp theo đã được xác định trong phần hướng phát triển.
+
+\subsection{Liên hệ OpenWrt với boot sequence và hệ thống nhúng}
+
+OpenWrt cũng tuân theo logic chung của Embedded Linux boot sequence. Sau khi thiết bị được cấp nguồn, bootloader như U-Boot khởi tạo phần cứng ở mức cơ bản, nạp kernel Linux và truyền thông tin cần thiết cho kernel. Kernel khởi tạo driver, mount root filesystem và chuyển sang user space. Trong user space, init system của OpenWrt khởi động các service mạng, cấu hình interface, firewall, DHCP, DNS và các daemon khác.
+
+Điểm đáng chú ý là OpenWrt thường chạy trên thiết bị có tài nguyên hạn chế, vì vậy mọi quyết định thiết kế đều phải cân nhắc dung lượng flash, RAM, thời gian boot và độ ổn định. Một ứng dụng C viết cho OpenWrt cần gọn, kiểm soát tài nguyên tốt, xử lý lỗi mạng cẩn thận và tích hợp đúng với cơ chế cấu hình/service của hệ thống. Do đó, OpenWrt là môi trường thực hành tốt để kết nối các kiến thức đã học: từ biên dịch C, linking, Linux system call, socket programming, process management cho đến boot sequence và triển khai phần mềm trên thiết bị thật.
+
+\section{Boot sequence, bootloader và kiến trúc ARM trong Embedded Linux}
+
+\subsection{Vai trò của bootloader trong hệ thống nhúng}
+
+Trong một hệ thống Embedded Linux, bootloader là thành phần đứng giữa phần cứng vừa được cấp nguồn và Linux Kernel. Nhiệm vụ trực tiếp của bootloader là đưa hệ thống từ trạng thái rất tối thiểu sau reset đến trạng thái đủ điều kiện để kernel có thể chạy. Có thể xem bootloader là chương trình chịu trách nhiệm ``đánh thức'' phần cứng ở mức cơ bản, nạp kernel vào RAM và tạo môi trường thực thi ban đầu cho kernel.
+
+Khi những dòng lệnh đầu tiên của bootloader được thực thi, hệ thống chưa ở trạng thái sẵn sàng như khi Linux đã chạy. DRAM thường chưa được cấu hình nên bộ nhớ chính chưa thể truy cập được. Các giao tiếp lưu trữ như NAND, SPI flash, eMMC, SD card hoặc USB cũng chưa chắc đã hoạt động. Thông thường chỉ có một lõi CPU chạy ở mức cấu hình an toàn, một lượng nhỏ SRAM bên trong SoC và boot ROM là có thể sử dụng. Vì vậy, bootloader không cần khởi tạo toàn bộ phần cứng như kernel, mà chỉ cần khởi tạo vừa đủ những thành phần cần thiết để nạp kernel, initramfs và Device Tree vào bộ nhớ.
+
+Ngoài nhiệm vụ nạp kernel, bootloader còn cung cấp chế độ bảo trì hệ thống. Trên nhiều board ARM, U-Boot cho phép người phát triển dừng quá trình autoboot qua serial console, nhập lệnh để kiểm tra RAM, xem biến môi trường, nạp image qua TFTP, đọc image từ SD/eMMC/NAND, ghi image vào flash hoặc thay đổi cấu hình boot. Chế độ này đặc biệt quan trọng trong giai đoạn bring-up board, debug lỗi khởi động và cập nhật phần mềm nhúng.
+
+\subsection{Đặc điểm boot trên kiến trúc ARM}
+
+Trong thế giới PC, firmware như BIOS hoặc UEFI cung cấp một môi trường tương đối chuẩn để tìm và chạy bootloader. Ngược lại, trên ARM và các SoC nhúng, quá trình boot phụ thuộc rất mạnh vào từng họ chip và từng thiết kế board. Mỗi SoC thường có boot ROM riêng, thứ tự tìm nguồn boot riêng, yêu cầu định dạng image riêng và địa chỉ nạp riêng. Vì vậy, boot sequence trên ARM thường được tổ chức thành nhiều giai đoạn nhỏ thay vì chỉ có một bootloader duy nhất.
+
+Trên ARM hiện đại, kernel không nên chứa cứng toàn bộ mô tả phần cứng của từng board. Thay vào đó, bootloader thường truyền cho kernel một Device Tree Blob. Device Tree mô tả các thành phần như CPU, RAM, bus, interrupt controller, UART, I2C, SPI, GPIO, Ethernet, flash và nhiều ngoại vi khác. Cách làm này giúp một kernel binary có thể hỗ trợ nhiều board khác nhau, miễn là kernel nhận được đúng Device Tree tương ứng. Đây là điểm rất quan trọng trong kiến trúc ARM, vì số lượng SoC và board ARM rất lớn, không đồng nhất như nền tảng PC.
+
+Trước khi Device Tree được sử dụng rộng rãi, một số hệ thống ARM cũ truyền thông tin sang kernel bằng ATAGS hoặc machine number. Cách này có nhiều hạn chế vì lượng thông tin truyền được ít, nhiều chi tiết phần cứng phải hard-code trong kernel dưới dạng platform data. Từ các kernel ARM hiện đại, Device Tree trở thành phương pháp phổ biến hơn để tách mô tả phần cứng ra khỏi kernel, giúp việc port Linux sang board mới linh hoạt hơn.
+
+\subsection{Phase 1: ROM code trong SoC}
+
+Giai đoạn đầu tiên của boot sequence trên thiết bị nhúng là ROM code. Đây là đoạn mã nằm sẵn bên trong SoC, được nạp vào chip từ quá trình sản xuất và chạy ngay sau reset hoặc power-on. Vì lúc này chưa có bộ nhớ ngoài đáng tin cậy, mã đầu tiên bắt buộc phải nằm trong chip. ROM code thường là mã đóng của nhà sản xuất SoC và người phát triển không thể thay thế bằng mã nguồn mở.
+
+ROM code thường không khởi tạo DRAM vì cấu hình DRAM phụ thuộc rất nhiều vào thiết kế board, loại RAM, tần số, timing và sơ đồ kết nối. Thay vào đó, ROM code sử dụng SRAM nội bộ của SoC. SRAM này có dung lượng nhỏ, có thể chỉ vài KB đến vài trăm KB, nhưng đủ để chứa một chương trình nạp thứ cấp nhỏ. ROM code sẽ tìm image ở các vị trí đã được SoC định nghĩa trước. Ví dụ, một số SoC có thể thử đọc từ các trang đầu của NAND flash, từ SPI flash, từ sector đầu của MMC/eMMC/SD card hoặc từ một file có tên cố định như \code{MLO} trên phân vùng boot.
+
+Nếu các nguồn boot thông thường thất bại, một số SoC có thể chuyển sang cơ chế nhận dữ liệu qua USB, UART hoặc Ethernet. Cơ chế này rất hữu ích trong sản xuất, nạp firmware lần đầu hoặc phục hồi thiết bị bị lỗi flash. Tuy nhiên, trong quá trình vận hành bình thường, hệ thống thường boot từ flash hoặc thẻ nhớ đã được chuẩn bị sẵn. Khi ROM code nạp xong chương trình nhỏ vào SRAM, nó nhảy đến địa chỉ bắt đầu của chương trình đó. Chương trình này thường là SPL.
+
+\subsection{Phase 2: SPL và khởi tạo DRAM}
+
+SPL, viết tắt của Secondary Program Loader, là giai đoạn trung gian giữa ROM code và bootloader đầy đủ. Lý do cần SPL là SRAM nội bộ thường quá nhỏ để chứa toàn bộ U-Boot hoặc một bootloader có đầy đủ driver, filesystem và giao diện dòng lệnh. SPL vì vậy được thiết kế tối giản, chỉ chứa những chức năng cần thiết nhất để đưa hệ thống đến trạng thái có thể nạp chương trình lớn hơn vào DRAM.
+
+Nhiệm vụ quan trọng nhất của SPL là khởi tạo bộ điều khiển DRAM. Việc này bao gồm cấu hình clock, PLL, nguồn, timing, bus width và các thanh ghi của memory controller. Nếu cấu hình DRAM sai, hệ thống có thể treo rất sớm, log không đầy đủ hoặc lỗi ngẫu nhiên khi nạp image lớn. Ngoài DRAM, SPL có thể khởi tạo thêm UART để in log, watchdog, MMC/eMMC, NAND, SPI flash hoặc driver filesystem đơn giản để đọc file như \code{u-boot.img}.
+
+Thông thường SPL không cung cấp giao diện tương tác cho người dùng. Nó có thể in một số dòng log như phiên bản, nguồn boot đang thử hoặc lỗi nạp image, nhưng nhiệm vụ chính vẫn là nạp TPL hoặc U-Boot đầy đủ vào DRAM. Ở cuối giai đoạn SPL, DRAM đã hoạt động và bootloader đầy đủ đã được đặt vào RAM. SPL sau đó chuyển quyền thực thi sang địa chỉ của bootloader đầy đủ.
+
+\subsection{Phase 3: TPL hoặc U-Boot đầy đủ}
+
+Sau khi DRAM được khởi tạo, hệ thống có thể chạy một bootloader hoàn chỉnh hơn, thường là U-Boot. Giai đoạn này đôi khi được gọi là TPL, tức Tertiary Program Loader, nếu hệ thống phân chia rõ ROM code, SPL và bootloader đầy đủ. Khác với SPL, U-Boot đầy đủ có thể chứa nhiều driver hơn, hỗ trợ filesystem, network, command line, biến môi trường và nhiều định dạng image khác nhau.
+
+U-Boot có thể nạp kernel từ nhiều nguồn. Trong giai đoạn phát triển, kernel thường được nạp qua mạng bằng TFTP để giảm thời gian thử nghiệm. Trên thiết bị triển khai thực tế, kernel thường được đọc từ NAND flash, NOR flash, SPI flash, eMMC, SD card hoặc một phân vùng boot riêng. U-Boot cũng có thể nạp initramfs và Device Tree vào các địa chỉ RAM riêng. Sau khi các thành phần này đã nằm trong bộ nhớ, U-Boot gọi lệnh boot thích hợp để chuyển quyền điều khiển sang kernel.
+
+Một điểm quan trọng của U-Boot là hệ thống biến môi trường. Các biến như địa chỉ nạp kernel, địa chỉ Device Tree, tên file image, địa chỉ IP của board, địa chỉ server TFTP, tham số kernel command line và script \code{bootcmd} quyết định hệ thống sẽ boot như thế nào. Khi bật nguồn, nếu người dùng không dừng autoboot trong thời gian \code{bootdelay}, U-Boot sẽ chạy nội dung \code{bootcmd}. Nhờ đó, quá trình boot có thể tự động nhưng vẫn cho phép can thiệp thủ công khi cần debug.
+
+\subsection{Nạp kernel, initramfs và Device Tree}
+
+Ở cuối giai đoạn bootloader, kernel image đã phải nằm trong RAM tại một địa chỉ phù hợp. Trên ARM, kernel có thể ở dạng \code{zImage}, \code{Image}, \code{uImage} hoặc FIT image tùy cấu hình. \code{zImage} là kernel đã nén và có đoạn tự giải nén. \code{uImage} là image có thêm header của U-Boot, chứa thông tin như kiến trúc, hệ điều hành, loại image, kiểu nén, địa chỉ load và entry point. FIT image là định dạng linh hoạt hơn, có thể đóng gói kernel, Device Tree, ramdisk và chữ ký xác thực trong một cấu trúc duy nhất.
+
+Ngoài kernel, bootloader thường nạp Device Tree Blob, tức file \code{.dtb}, vào RAM. Device Tree được viết ở dạng source \code{.dts} hoặc \code{.dtsi} và được biên dịch bằng Device Tree Compiler thành \code{.dtb}. Kernel đọc \code{.dtb} để biết phần cứng nào tồn tại, địa chỉ thanh ghi của thiết bị, interrupt nào được dùng, clock nào liên quan và driver nào có thể bind với thiết bị thông qua thuộc tính \code{compatible}. Nếu Device Tree sai, kernel có thể vẫn boot nhưng thiếu thiết bị, không nhận UART, không mount được storage hoặc driver không probe được.
+
+Initramfs là thành phần tùy chọn nhưng rất hữu ích. Nó là một root filesystem tạm thời nằm trong RAM, chứa các công cụ và module cần thiết cho giai đoạn đầu của kernel. Trong một số hệ thống, initramfs được dùng để nạp driver storage, giải mã root filesystem, kiểm tra phân vùng hoặc chọn rootfs thật. Với hệ thống nhúng nhỏ, có thể không cần initramfs nếu kernel có đủ driver built-in để mount root filesystem trực tiếp.
+
+\subsection{Handoff từ bootloader sang Linux Kernel}
+
+Khi bootloader chuyển quyền điều khiển cho Linux Kernel, nó không chỉ nhảy đến entry point của kernel. Nó còn phải truyền cho kernel các thông tin tối thiểu để kernel có thể tiếp tục quá trình khởi động. Những thông tin này gồm vị trí và kích thước RAM vật lý, kernel command line, địa chỉ Device Tree Blob, địa chỉ và kích thước initramfs nếu có, và trong các nền tảng cũ có thể gồm machine number hoặc ATAGS.
+
+Kernel command line là một chuỗi ASCII điều khiển hành vi khởi động của Linux. Các tham số phổ biến gồm \code{console=} để chọn console log, \code{root=} để chỉ định root filesystem, \code{rootwait} để chờ thiết bị lưu trữ xuất hiện, \code{init=} để chọn chương trình init, hoặc các tham số debug như \code{loglevel}. Trong Embedded Linux, một lỗi nhỏ ở command line cũng có thể làm kernel boot được nhưng không mount được root filesystem, dẫn đến kernel panic ở cuối quá trình khởi động.
+
+Sau khi nhận quyền điều khiển, kernel giải nén nếu cần, thiết lập môi trường thực thi, khởi tạo MMU, scheduler, interrupt, memory management và các driver cơ bản. Kernel phân tích Device Tree để tạo danh sách thiết bị nền tảng, probe driver tương ứng, mount root filesystem và chạy chương trình init đầu tiên trong user space. Từ thời điểm init chạy, bootloader không còn vai trò trong hệ thống và vùng nhớ mà bootloader từng sử dụng có thể được kernel tái sử dụng.
+
+\subsection{Falcon mode và tối ưu thời gian boot}
+
+Trong một số hệ thống nhúng, thời gian khởi động là yêu cầu quan trọng. Quy trình thông thường ROM code nạp SPL, SPL nạp U-Boot đầy đủ, U-Boot chạy script rồi nạp kernel có thể linh hoạt nhưng mất thêm thời gian. U-Boot hỗ trợ một hướng tối ưu gọi là Falcon mode. Ý tưởng của Falcon mode là để SPL nạp trực tiếp Linux Kernel từ một vị trí đã biết, truyền sẵn tham số cần thiết và bỏ qua giai đoạn U-Boot đầy đủ.
+
+Falcon mode giúp giảm số bước boot, giảm thời gian chờ autoboot và loại bỏ tương tác dòng lệnh trong quá trình khởi động. Đổi lại, hệ thống mất đi sự linh hoạt của U-Boot đầy đủ trong mỗi lần boot. Vì vậy, Falcon mode phù hợp với sản phẩm ổn định, có quy trình update rõ ràng và không cần can thiệp debug thường xuyên. Trong giai đoạn phát triển, người ta vẫn thường giữ U-Boot đầy đủ để dễ nạp image, thay đổi command line và kiểm tra thiết bị.
+
+\subsection{Tổng kết luồng boot trên ARM Embedded Linux}
+
+Tổng thể, boot sequence trên một board ARM chạy Embedded Linux có thể được hiểu theo chuỗi sau. Sau reset, CPU bắt đầu từ boot ROM trong SoC. ROM code chọn nguồn boot và nạp SPL vào SRAM. SPL khởi tạo DRAM và các giao tiếp tối thiểu rồi nạp U-Boot đầy đủ vào DRAM. U-Boot cung cấp môi trường dòng lệnh, đọc biến môi trường, nạp kernel, Device Tree và initramfs từ flash, thẻ nhớ hoặc mạng. Sau đó U-Boot truyền command line, Device Tree và các thông tin cần thiết cho kernel. Kernel tiếp quản hệ thống, khởi tạo driver, mount root filesystem và chạy init trong user space.
+
+Cách nhìn này cho thấy bootloader không chỉ là một chương trình nạp kernel đơn giản. Nó là thành phần quyết định khả năng bring-up board, cập nhật firmware, debug lỗi boot, lựa chọn image, truyền mô tả phần cứng và đảm bảo kernel bắt đầu chạy trong trạng thái hợp lệ. Đối với người học Embedded Linux, hiểu boot sequence và bootloader trên ARM là điều kiện quan trọng để tiếp tục học U-Boot, Device Tree, kernel configuration, root filesystem và cơ chế cập nhật phần mềm trên thiết bị thật.
+
+Phần boot sequence là phần duy nhất trong báo cáo chưa có thực nghiệm đi kèm, vì kiểm chứng nó đòi hỏi một board thật với serial console để dừng autoboot và quan sát log từng giai đoạn. Đây là hạng mục đầu tiên trong danh sách hướng phát triển ở mục 21.
+
+\section{Ứng dụng kiến thức vào MediaTek AP 6}
+
+\subsection{Bối cảnh áp dụng trên thiết bị Access Point}
+
+MediaTek AP 6 có thể được xem như một ví dụ thực tế để liên hệ các nội dung đã học về Embedded Linux, OpenWrt, socket programming và bootloader. Khác với một chương trình C chạy độc lập trên PC, phần mềm trên một thiết bị Access Point phải hoạt động trong một hệ thống nhúng hoàn chỉnh. Hệ thống đó có bootloader để khởi động kernel, root filesystem chứa các dịch vụ user space, driver Wi-Fi giao tiếp với phần cứng radio, các daemon cấu hình mạng và giao diện quản lý để người dùng thay đổi tham số vận hành.
+
+Trong môi trường AP, yêu cầu quan trọng không chỉ là thiết bị boot được vào Linux mà còn phải tạo được mạng Wi-Fi ổn định, phát SSID đúng cấu hình, chọn channel phù hợp, áp dụng bảo mật, quản lý client và duy trì kết nối mạng trong thời gian dài. Vì vậy, các kiến thức về process, thread, IPC, signal, socket và OpenWrt đều có thể được áp dụng trực tiếp. Một daemon cấu hình Wi-Fi có thể nhận lệnh từ giao diện web hoặc từ một service quản lý, chuyển đổi cấu hình đó thành profile của driver, gọi lệnh hệ thống hoặc ioctl để cập nhật tham số, sau đó kiểm tra trạng thái hoạt động của interface.
+
+Toàn bộ mô tả trên đã được hiện thực thành chương trình chạy được trong dự án đi kèm, với daemon \code{apd} đóng vai trò service quản lý Wi-Fi và \code{apctl} đóng vai trò công cụ cấu hình. Các mục tiếp theo trình bày kết quả chạy thật của hệ thống này.
+
+\subsection{Cấu hình Wi-Fi SoftAP bằng profile và iwpriv}
+
+Theo guide MediaTek Wi-Fi SoftAP, driver hỗ trợ hai hướng cấu hình chính: cấu hình bằng profile và cấu hình động bằng lệnh \code{iwpriv}. Cấu hình bằng profile phù hợp với các tham số cần có ngay khi driver hoặc interface được khởi tạo. Profile có thể chứa các trường như country region, country code, số lượng BSSID, SSID, wireless mode, channel, beacon period, DTIM period, transmit power, WMM, ẩn SSID, cơ chế chống flooding, forwarding giữa các BSSID và nhiều tham số khác. Đây là dạng cấu hình gần với cách một firmware AP lưu thông tin mặc định trước khi đưa Wi-Fi lên hoạt động.
+
+Ngược lại, \code{iwpriv} phù hợp với việc thay đổi hoặc kiểm tra tham số khi hệ thống đang chạy. Ví dụ, người phát triển có thể dùng \code{iwpriv} để đổi SSID, chỉnh channel, kiểm tra thông tin driver, bật tắt một số tính năng hoặc debug hiệu năng TX/RX. Về mặt Linux Programming, các thao tác này có thể được hiểu là cách user space gửi yêu cầu xuống driver thông qua wireless extension hoặc ioctl. Điều này liên hệ trực tiếp với phần system call đã học: ứng dụng user space không điều khiển phần cứng Wi-Fi trực tiếp mà phải đi qua kernel và driver.
+
+Trên một nền tảng giống OpenWrt, các tham số từ UCI hoặc file cấu hình hệ thống có thể được chuyển đổi thành profile MediaTek hoặc thành các lệnh runtime tương ứng. Khi người dùng thay đổi SSID, mật khẩu hoặc channel từ giao diện quản lý, backend có thể cập nhật file cấu hình, restart service Wi-Fi hoặc gọi công cụ điều khiển driver. Như vậy, kiến thức về file I/O, process, signal và service management đều tham gia vào quá trình cấu hình SoftAP.
+
+\subsection{Kết quả chạy: đọc và sửa profile SoftAP}
+
+File \code{config/ap6.dat} trong dự án là một profile SoftAP theo đúng dạng khóa--giá trị của MediaTek, gồm 23 tham số thuộc bốn nhóm sẽ phân tích ở mục sau. Daemon nạp file này lúc khởi động và cho phép đọc, sửa, kiểm tra tính hợp lệ và lưu lại qua giao diện dòng lệnh.
+
+\begin{lstlisting}[caption={Trạng thái daemon và toàn bộ profile SoftAP}]
+$ apctl STATUS
+pid=499885
+uptime=1s
+backend=simulated
+profile=/tmp/ap6-collect/ap6.dat
+profile_dirty=0
+clients=1
+connections_total=1
+commands_total=1
+
+$ apctl SHOW
+CountryRegion=5        WirelessMode=9         AuthMode=WPA2PSK
+CountryRegionABand=7   HideSSID=0             EncrypType=AES
+CountryCode=VN         BeaconPeriod=100       WPAPSK=ThucTap2026
+Channel=6              DtimPeriod=1           PMFMFPC=1
+AutoChannelSelect=0    TxPower=100            AuthFloodThreshold=32
+SSID=Viettel_AP6       TxBurst=1              AssocReqFloodThreshold=32
+BssidNum=1             WmmCapable=1           DeauthFloodThreshold=32
+                       NoForwarding=0
+\end{lstlisting}
+
+Dòng \code{backend=simulated} là điểm quan trọng nhất trong kết quả \code{STATUS}. Khi khởi động, daemon thử mở \code{/dev/ap6sim}; nếu device node không tồn tại vì module chưa được nạp, nó ghi một cảnh báo và chuyển sang backend mô phỏng thay vì thoát với lỗi. Cách xử lý này phản ánh một thực tế khi bring-up thiết bị: phần mềm user space thường phải phát triển song song với driver, nên cần chạy được cả khi driver chưa sẵn sàng. Trường \code{profile\_dirty} cho biết cấu hình trong bộ nhớ đã khác với file trên đĩa hay chưa, tương ứng với khái niệm dữ liệu còn nằm trong cache chưa ghi xuống flash ở mục 5.4.
+
+\begin{lstlisting}[caption={Kiểm tra tính hợp lệ của tham số trước khi áp dụng}]
+$ apctl GET SSID
+Viettel_AP6
+
+$ apctl SET SSID Viettel_Lab
+OK SSID=Viettel_Lab
+
+$ apctl SET Channel 11
+OK Channel=11
+
+$ apctl SET Channel 999
+ERR 'Channel' phai trong [0..196]
+
+$ apctl SET AuthMode WEP
+ERR 'AuthMode' phai thuoc {OPEN|WPAPSK|WPA2PSK|WPA3PSK|WPA1PSKWPA2PSK}
+\end{lstlisting}
+
+Hai lệnh cuối minh họa nguyên tắc quan trọng nhất của một control path: kiểm tra tham số ở tầng cao nhất có thể, trước khi giá trị sai kịp đi xuống driver. Bảng định nghĩa trong \code{src/common/profile.c} khai báo cho mỗi khóa một kiểu, khoảng giá trị hợp lệ hoặc tập giá trị được phép, ví dụ \code{Channel} nằm trong khoảng 0--196, \code{TxPower} trong khoảng 1--100, \code{BeaconPeriod} trong khoảng 20--1000. Nhờ vậy một lệnh sai bị chặn ngay với thông báo nêu rõ ràng buộc, thay vì làm driver trả về mã lỗi khó hiểu hoặc tệ hơn là đưa radio vào trạng thái không hợp lệ. Trên thiết bị thật, đặt channel ngoài dải cho phép của quốc gia không chỉ làm Wi-Fi không lên mà còn là vi phạm quy định tần số.
+
+\begin{lstlisting}[caption={APPLY: fork + exec script áp cấu hình, rồi đọc lại trạng thái radio}]
+$ apctl APPLY
+OK apply ssid=Viettel_Lab channel=11 txpower=100 child_pid=499917
+
+--- log cua daemon ---
+INFO apd: APPLY: da fork process con pid=499917 chay .../apply_profile.sh
+[apply_profile] ap dung cau hinh: ssid='Viettel_Lab' channel=11 txpower=100 iface=ra0
+[apply_profile] (mo phong) iwpriv ra0 set SSID=Viettel_Lab
+[apply_profile] (mo phong) iwpriv ra0 set Channel=11
+[apply_profile] (mo phong) iwpriv ra0 set TxPower=100
+INFO apd: process con 499917 ket thuc, exit=0
+
+$ apctl RADIO
+backend=simulated   ssid=Viettel_Lab   channel=11
+txpower=100         enabled=1          clients=3
+irq_count=4         tx_packets=20      rx_packets=32
+\end{lstlisting}
+
+Lệnh \code{APPLY} là nơi nhiều phần lý thuyết gặp nhau trong một thao tác duy nhất. Daemon \code{fork} một process con, process con \code{exec} script \code{apply\_profile.sh} vốn là nơi gọi các lệnh \code{iwpriv} thật trên thiết bị, còn daemon cha không chờ đồng bộ mà tiếp tục phục vụ client khác và thu hồi process con sau bằng \code{SIGCHLD}. Dòng log ghi nhận process con 499917 kết thúc với mã 0 chính là bằng chứng cho thấy cơ chế thu hồi hoạt động, và bộ test có một case riêng kiểm tra rằng sau \code{APPLY} không còn zombie nào dưới daemon. Giữa \code{fork} và \code{exec}, process con chỉ gọi các hàm async-signal-safe, vì như đã phân tích ở mục 8, process con chỉ thừa hưởng thread đã gọi \code{fork} và mọi mutex do thread khác giữ sẽ vĩnh viễn bị khóa trong process con.
+
+\subsection{Các nhóm tham số quan trọng khi triển khai AP 6}
+
+Khi triển khai trên MediaTek AP 6, nhóm tham số đầu tiên cần chú ý là tham số vùng quốc gia và kênh tần số. Các trường như \code{CountryRegion}, \code{CountryRegionABand}, \code{CountryCode}, \code{ChannelGeography}, \code{Channel} và \code{AutoChannelSelect} ảnh hưởng trực tiếp đến danh sách channel hợp lệ và hành vi chọn kênh. Đây là nhóm cấu hình quan trọng vì thiết bị Wi-Fi phải tuân thủ quy định tần số của từng khu vực. Nếu cấu hình sai country code hoặc channel, thiết bị có thể không phát đúng băng tần mong muốn, không lên được interface hoặc vi phạm quy định sử dụng phổ tần.
+
+Nhóm tham số thứ hai liên quan đến nhận dạng mạng và chế độ Wi-Fi. \code{SSID} quyết định tên mạng hiển thị cho client, \code{BssidNum} liên quan đến số lượng SSID/BSSID, còn \code{WirelessMode} quyết định chuẩn hoạt động như 802.11b/g/n/ac tùy chip và driver hỗ trợ. Với một AP nhiều SSID, các cơ chế như MBSSID và forwarding giữa các BSSID trở nên quan trọng vì chúng quyết định client ở các SSID khác nhau có được giao tiếp với nhau hay không. Các tham số như \code{NoForwarding}, \code{NoForwardingBTNBSSID} và \code{NoForwardingMBCast} có thể được dùng để cô lập client hoặc cô lập lưu lượng giữa các mạng Wi-Fi khác nhau.
+
+Nhóm tham số thứ ba liên quan đến hiệu năng và chất lượng dịch vụ. Các trường như \code{BeaconPeriod}, \code{DtimPeriod}, \code{TxPower}, \code{BasicRate}, \code{SupportRate}, \code{SupportHTRate}, \code{WmmCapable} và \code{TxBurst} ảnh hưởng đến vùng phủ sóng, độ tương thích client, độ trễ và cân bằng giữa TX/RX. Trong quá trình test AP, nếu thấy throughput không cân bằng hoặc client kết nối không ổn định, người phát triển cần kiểm tra các tham số này cùng log driver. Đây là nơi kiến thức về debug Linux, đọc log, dùng command line và phân tích trạng thái runtime trở nên cần thiết.
+
+Nhóm tham số thứ tư liên quan đến bảo mật và độ ổn định. Một AP thực tế cần cấu hình authentication, encryption, WPS, PMF, ACL và các ngưỡng chống flooding như \code{AuthFloodThreshold}, \code{AssocReqFloodThreshold}, \code{ReassocReqFloodThreshold} hoặc \code{DeauthFloodThreshold}. Những tham số này giúp AP kiểm soát hành vi client và giảm rủi ro bị tấn công ở tầng Wi-Fi management frame. Đối với sản phẩm thương mại, bảo mật Wi-Fi không thể chỉ dừng ở việc đặt mật khẩu mà còn phải tính đến khả năng chống lạm dụng và khả năng vận hành ổn định trong môi trường nhiều client.
+
+Bốn nhóm này được hiện thực trực tiếp trong bảng định nghĩa tham số của dự án, mỗi nhóm có ràng buộc kiểm tra riêng, và bộ test có sáu case kiểm tra các trường hợp sai thường gặp: giá trị ngoài khoảng, SSID dài quá 32 ký tự, \code{AuthMode} không thuộc tập cho phép, \code{CountryCode} sai định dạng, \code{WPAPSK} quá ngắn và lệnh không tồn tại.
+
+\subsection{Liên hệ với socket programming và daemon quản lý}
+
+Trong một thiết bị AP 6, socket programming thường được dùng ở tầng quản lý và điều khiển. Một daemon user space có thể mở TCP socket hoặc Unix domain socket để nhận lệnh cấu hình từ web UI, CLI, mobile app hoặc cloud service. Sau khi nhận yêu cầu, daemon kiểm tra dữ liệu, cập nhật cấu hình, gọi script hệ thống hoặc dùng ioctl để thay đổi tham số driver. Với các tác vụ giám sát, daemon có thể gửi log, trạng thái client, số lượng station, channel hiện tại hoặc thông tin throughput về server quản lý thông qua TCP/UDP socket.
+
+\begin{lstlisting}[caption={Cùng một lệnh qua hai đường truyền, và telemetry qua shared memory}]
+$ apctl -H 127.0.0.1 -P 19302 GET Channel   # cung lenh qua TCP
+11
+
+$ apctl STATS            # doc tu shared memory qua daemon
+seq=3      uptime=1s     ssid=Viettel_AP6   channel=6
+txpower=100              clients=2          noise_dbm=-92
+tx_bytes=22500           rx_bytes=36000     tx_errors=0
+
+$ apmon 3 500            # process khac doc thang shared memory
+seq    ssid               ch   pwr  clients noise  tx_bytes   rx_bytes
+3      Viettel_AP6        6    100  2       -92    22500      36000
+4      Viettel_Lab        11   100  4       -91    37500      60000
+5      Viettel_Lab        11   100  0       -90    45000      72000
+\end{lstlisting}
+
+Kết quả này thể hiện hai lựa chọn IPC khác nhau cho hai loại dữ liệu khác nhau, đúng như bảng tổng kết ở mục 9.7. Lệnh điều khiển đi qua socket vì nó cần mô hình yêu cầu--phản hồi, cần xác nhận đã thực hiện và có thể phải đến từ xa; kết quả cho thấy cùng một lệnh \code{GET Channel} chạy được qua cả Unix domain socket lẫn TCP mà không cần đổi mã xử lý, vì cả hai đều chỉ là file descriptor trong cùng vòng lặp \code{epoll}. Ngược lại, telemetry đi qua shared memory vì nó được cập nhật liên tục mỗi 500 ms và có thể bị nhiều process đọc; đưa nó qua socket sẽ tốn một lần copy qua kernel cho mỗi lần đọc.
+
+Chi tiết đáng chú ý trong output của \code{apmon} là ba dòng lần lượt có \code{seq} bằng 3, 4, 5 và giá trị SSID đổi từ \code{Viettel\_AP6} sang \code{Viettel\_Lab} giữa chừng. Điều đó chứng minh \code{apmon}, vốn là một process hoàn toàn độc lập, thấy được thay đổi do thread telemetry của daemon ghi vào vùng nhớ chung theo thời gian thực. Trường \code{seq} tăng đều cũng là cách đơn giản để bên đọc biết dữ liệu còn mới hay daemon đã dừng cập nhật.
+
+Cách tổ chức này cho thấy mối liên hệ giữa socket programming và các kiến thức khác trong báo cáo. Process và thread giúp daemon xử lý nhiều kết nối hoặc nhiều tác vụ đồng thời. Signal giúp service thoát an toàn khi hệ thống restart Wi-Fi hoặc shutdown. IPC giúp các tiến trình như web backend, network manager và Wi-Fi manager trao đổi trạng thái. File I/O giúp đọc ghi profile hoặc UCI config. System call và ioctl là cầu nối để user space tác động đến driver. Nếu daemon không kiểm soát tốt tài nguyên, thiết bị có thể bị leak file descriptor, treo service hoặc mất khả năng cấu hình Wi-Fi sau thời gian chạy dài.
+
+\subsection{Quy trình áp dụng vào bring-up và kiểm thử}
+
+Khi bring-up MediaTek AP 6, quá trình thường bắt đầu từ bootloader và kernel. Thiết bị phải boot được vào Linux, nhận đúng flash, Ethernet, UART và Wi-Fi chipset. Sau đó, driver Wi-Fi cần được nạp thành công, interface xuất hiện đúng tên, profile SoftAP được đọc và SSID được phát ra. Nếu AP không phát Wi-Fi, người phát triển cần kiểm tra theo từng lớp: boot log, kernel log, module driver, firmware Wi-Fi, file profile, quyền truy cập file, script khởi động service và lệnh cấu hình runtime.
+
+Sau khi interface hoạt động, bước tiếp theo là kiểm thử cấu hình cơ bản như SSID, channel, country code, security mode và DHCP/network bridge. Tiếp đó là kiểm thử nhiều client, roaming, throughput, độ ổn định khi restart Wi-Fi, thay đổi cấu hình runtime và phục hồi sau lỗi. Với các tính năng nâng cao như ACS, MBSSID, WPS, PMF, ACL hoặc IGMP snooping, cần có test case riêng để xác nhận tham số trong profile thực sự được driver áp dụng. Các công cụ như log hệ thống, lệnh \code{iwpriv}, script kiểm tra trạng thái, packet capture và chương trình socket test đều có thể hỗ trợ quá trình này.
+
+Nhìn chung, MediaTek AP 6 là một môi trường ứng dụng rất phù hợp cho các kiến thức đã học trong kỳ thực tập. Basic C giúp hiểu cách viết và build công cụ quản lý. Linux Programming giúp hiểu cách daemon tương tác với kernel và driver. OpenWrt giúp tổ chức package, service và cấu hình hệ thống. Socket programming giúp xây dựng kênh điều khiển và giám sát. Boot sequence giúp phân tích lỗi từ lúc cấp nguồn đến khi Wi-Fi service chạy. Nhờ đó, người học có thể nhìn thiết bị AP không chỉ như một router phát Wi-Fi, mà như một hệ thống Embedded Linux hoàn chỉnh có nhiều tầng phần mềm phối hợp với nhau.
+
+\section{Kiểm thử tự động toàn hệ thống}
+
+\subsection{Vì sao cần bộ kiểm thử}
+
+Khi số lượng demo và thành phần tăng lên, việc chạy tay từng chương trình rồi đọc output trở nên không khả thi và dễ bỏ sót. Quan trọng hơn, phần lớn hiện tượng được trình bày trong báo cáo là hiện tượng có tính xác suất hoặc phụ thuộc thời điểm, ví dụ zombie chỉ tồn tại trong một khoảng rất ngắn, hay race condition không phải lúc nào cũng biểu hiện. Bộ kiểm thử tại \code{tests/run\_tests.sh} tự động hóa việc này: nó chạy từng chương trình, bắt output và kiểm tra sự có mặt của những dấu hiệu cụ thể, sau đó dọn dẹp process và tài nguyên còn sót.
+
+\subsection{Kết quả chạy toàn bộ}
+
+\begin{lstlisting}[caption={Trích kết quả \code{make test} (53 test case)}]
+[1] Demo cac chuong ly thuyet
+  PASS  muc 3  - BSS duoc kernel xoa ve 0
+  PASS  muc 4  - system call that bai co errno
+  PASS  muc 6  - demand paging: minor fault
+  PASS  muc 6  - MAP_SHARED thay thay doi / MAP_PRIVATE copy-on-write
+  PASS  muc 7  - fork tra ve 0 o process con, exec thay the image
+  PASS  muc 8  - mutex cho ket qua dung, khong deadlock khi lock dung thu tu
+  PASS  muc 9  - pipe bao EOF khi dong dau ghi
+  PASS  muc 9  - message queue giu ranh gioi message
+  PASS  muc 10 - SIGCHLD duoc thu hoi, SIGALRM tu timer
+[2] Socket demo (muc 13)
+  PASS  muc 13 - TCP echo tra lai dung noi dung
+  PASS  muc 13 - UDP collector nhan duoc datagram
+[3] Daemon apd - control path
+  PASS  apd khoi dong, tao Unix domain socket, ghi pid file
+  PASS  SET ngoai khoang -> loi / SSID qua 32 ky tu -> loi
+  PASS  TCP control path hoat dong
+[4] Daemon apd - fork/exec, luu cau hinh, telemetry
+  PASS  APPLY fork process con, process con duoc thu hoi (khong zombie)
+  PASS  apmon (process khac) thay seq tang: 5 -> 7
+  PASS  SAVE khong de lai file tam (ghi atomic)
+[5] Xu ly signal (muc 10.5)
+  PASS  SIGHUP nap lai profile tu file
+  PASS  SIGTERM lam apd thoat mem
+  PASS  don dep: da xoa socket / pid file / shared memory
+[6] Kernel module ap6sim (tuy chon)
+  SKIP  module chua nap (can quyen root de insmod)
+
+Tong ket: 53 PASS, 0 FAIL
+\end{lstlisting}
+
+Nhóm test số 6 được đánh dấu \code{SKIP} chứ không phải \code{FAIL}: module biên dịch thành công như đã trình bày ở mục 11.10, nhưng thao tác \code{insmod} cần quyền quản trị nên không được thực hiện trong lần thu thập kết quả tự động này. Cách phân biệt giữa một test bị bỏ qua và một test thất bại là chi tiết nhỏ nhưng cần thiết: nếu đánh dấu nhầm thành \code{FAIL}, người đọc kết quả sẽ mất niềm tin vào toàn bộ báo cáo test; nếu che giấu nó đi, một chức năng chưa được kiểm chứng sẽ bị nhầm là đã kiểm chứng.
+
+\section{Văn hóa công ty trong quá trình thực tập}
+
+\subsection{Môi trường làm việc và tinh thần học hỏi}
+
+Trong thời gian thực tập tại Viettel, sinh viên được tiếp cận một môi trường làm việc có tính kỷ luật cao, coi trọng hiệu quả công việc và tinh thần chủ động học hỏi. Đặc điểm nổi bật của môi trường này là yêu cầu mỗi cá nhân không chỉ hoàn thành phần việc được giao, mà còn phải hiểu bản chất vấn đề, biết đặt câu hỏi và có khả năng tự tìm hướng giải quyết trước khi trao đổi với người hướng dẫn. Điều này phù hợp với đặc thù của lĩnh vực Embedded Linux, nơi các lỗi kỹ thuật thường không thể xử lý bằng cách ghi nhớ máy móc mà cần phân tích từ nhiều lớp, từ mã nguồn C, thư viện, system call, kernel, bootloader cho đến phần cứng.
+
+Văn hóa làm việc cũng nhấn mạnh tinh thần trách nhiệm với sản phẩm. Trong các bài học và trao đổi hằng ngày, sinh viên nhận thấy rằng một đoạn mã chạy được chưa đủ để được xem là hoàn thiện. Chương trình cần có khả năng xử lý lỗi, sử dụng tài nguyên hợp lý, dễ bảo trì và phù hợp với môi trường triển khai thực tế. Tư duy này ảnh hưởng trực tiếp đến cách dự án đi kèm được viết: mọi system call đều kiểm tra giá trị trả về, mọi tài nguyên đều được giải phóng theo thứ tự ngược với khi cấp phát, và mã nguồn được biên dịch với \code{-Wall -Wextra} mà không còn cảnh báo nào.
+
+\subsection{Văn hóa seminar và chia sẻ kiến thức cho intern}
+
+Một điểm đáng chú ý trong quá trình thực tập là văn hóa seminar dành cho intern. Các buổi seminar tạo ra không gian để sinh viên trình bày lại nội dung đã học, trao đổi khó khăn gặp phải và nhận góp ý từ người hướng dẫn hoặc các thành viên khác trong nhóm. Thay vì học một chiều, seminar buộc người học phải hệ thống hóa kiến thức, diễn đạt lại bằng ngôn ngữ của mình và trả lời các câu hỏi phản biện. Đây là cách học rất hiệu quả đối với các chủ đề nền tảng như Basic C, Linux Programming, socket programming, OpenWrt và boot sequence.
+
+Thông qua seminar, sinh viên không chỉ củng cố kiến thức kỹ thuật mà còn rèn luyện kỹ năng trình bày. Khi giải thích một nội dung như virtual memory, process, thread hay IPC cho người khác, sinh viên phải hiểu rõ khái niệm, phân biệt được các trường hợp sử dụng và biết liên hệ với ví dụ thực tế. Những câu hỏi trong seminar cũng giúp phát hiện các điểm còn hiểu chưa sâu, từ đó định hướng lại việc tự học. Đối với một intern, đây là cơ hội tốt để chuyển từ trạng thái tiếp nhận kiến thức sang trạng thái chủ động phân tích và chia sẻ kiến thức.
+
+Việc chuẩn bị cho seminar cũng chính là lý do dự án đi kèm được xây dựng. Một câu trả lời dạng ``theo lý thuyết thì bộ nhớ ảo chỉ được cấp khi process chạm vào trang'' luôn kém thuyết phục hơn một bảng số đo cho thấy RSS chỉ tăng 128 KB sau khi \code{mmap} 64 MB rồi tăng đúng 65536 KB sau khi ghi vào từng trang. Tài liệu \code{docs/doi-chieu-bao-cao.md} được viết riêng cho mục đích này: mỗi mục lý thuyết trong báo cáo được đặt cạnh đoạn mã tương ứng và lệnh để kiểm chứng lại.
+
+Bên cạnh seminar kỹ thuật, văn hóa trao đổi trong nhóm cũng tạo điều kiện để intern làm quen với quy trình làm việc chuyên nghiệp. Các nội dung như sử dụng Git, viết báo cáo, đọc tài liệu, ghi chú kết quả thực nghiệm và trình bày tiến độ đều được xem là một phần của quá trình học. Điều này giúp sinh viên hiểu rằng năng lực kỹ thuật cần đi kèm với khả năng giao tiếp, phối hợp và báo cáo rõ ràng.
+
+\subsection{Tác phong và bài học cá nhân}
+
+Quá trình thực tập giúp sinh viên nhận ra tầm quan trọng của tác phong làm việc nghiêm túc. Trong môi trường doanh nghiệp công nghệ, thời gian, chất lượng và tính chính xác đều có ý nghĩa quan trọng. Khi tìm hiểu một vấn đề, sinh viên cần ghi lại nguồn tài liệu, các bước đã thử, lỗi gặp phải và kết quả thu được. Cách làm này giúp quá trình trao đổi với người hướng dẫn hiệu quả hơn, đồng thời tạo thói quen làm việc có bằng chứng thay vì chỉ dựa trên cảm tính.
+
+Một bài học khác là tinh thần tự học. Các chủ đề như Embedded Linux, OpenWrt hay socket programming có phạm vi rộng, không thể nắm vững chỉ qua một buổi hướng dẫn. Người học cần chủ động đọc tài liệu, chạy thử ví dụ, quan sát log, phân tích lỗi và tự tổng hợp lại kiến thức. Văn hóa công ty khuyến khích intern đặt câu hỏi, nhưng cũng yêu cầu câu hỏi phải đi kèm với quá trình tự tìm hiểu trước đó. Nhờ vậy, sinh viên dần hình thành tư duy độc lập hơn khi tiếp cận vấn đề kỹ thuật.
+
+Nhìn chung, văn hóa thực tập tại Viettel không chỉ giúp sinh viên bổ sung kiến thức chuyên môn mà còn giúp rèn luyện phong cách làm việc. Sự kết hợp giữa seminar, hướng dẫn kỹ thuật, tự nghiên cứu và báo cáo tiến độ tạo ra môi trường phù hợp để sinh viên chuẩn bị cho công việc phát triển phần mềm nhúng trong thực tế.
+
+\section{Nhật ký công việc}
+
+Phần này ghi lại tiến trình công việc theo tuần, gồm nội dung đã tìm hiểu, phần thực hành tương ứng, khó khăn gặp phải và cách khắc phục. Sinh viên bổ sung mốc thời gian cụ thể và các nội dung phát sinh tại đơn vị thực tập vào các ô trống.
+
+\subsection*{Tuần 1 --- Nền tảng Basic C và tổ chức bộ nhớ}
+
+\textit{Thời gian: ..................................}
+
+Nội dung tìm hiểu: bốn giai đoạn hình thành chương trình C, định dạng ELF, liên kết tĩnh và liên kết động, memory layout của process, phân biệt lỗi thuộc compile-time, load-time và run-time.
+
+Phần thực hành: viết script tách rời bốn giai đoạn biên dịch bằng \code{gcc -E}, \code{-S}, \code{-c} và linking; đóng cùng một thư viện thành \code{.a} và \code{.so} để so sánh; viết chương trình in địa chỉ các vùng text, rodata, data, BSS, heap, mmap và stack.
+
+Kết quả: quan sát được file nguồn 17 dòng nở thành 837 dòng sau tiền xử lý, các symbol còn ở trạng thái \code{U} trong object file, và chênh lệch kích thước giữa liên kết động 16 KB với liên kết tĩnh toàn phần 785 KB.
+
+Khó khăn và cách khắc phục: ban đầu chưa phân biệt được lỗi \code{undefined reference} thuộc giai đoạn nào; sau khi dùng \code{nm} xem symbol trong object file thì thấy rõ đây là lỗi của linker chứ không phải compiler.
+
+\vspace{0.4cm}
+\textit{Ghi chú thêm: ..............................................................................................}
+\vspace{0.6cm}
+
+\subsection*{Tuần 2 --- System call, virtual memory và process}
+
+\textit{Thời gian: ..................................}
+
+Nội dung tìm hiểu: ranh giới user space và kernel space, cơ chế system call, page table và MMU, demand paging, \code{mmap}, \code{fork}, \code{exec}, \code{wait}, zombie và orphan.
+
+Phần thực hành: đo số system call thực tế bằng \code{strace -c}; đo RSS và số page fault trước và sau khi ghi vào vùng \code{mmap} 64 MB; so sánh \code{MAP\_SHARED} với \code{MAP\_PRIVATE} qua \code{fork}; bắt trạng thái zombie bằng \code{ps} ngay tại thời điểm nó tồn tại.
+
+Kết quả: xác nhận 16384 minor fault tương ứng đúng 16384 trang của vùng 64 MB, và biến toàn cục của process cha không bị process con thay đổi nhờ copy-on-write.
+
+Khó khăn và cách khắc phục: output của chương trình demo process bị in lặp nhiều lần; nguyên nhân là process con thừa hưởng buffer stdio chưa flush của cha, khắc phục bằng cách dùng \code{\_exit} thay cho \code{exit} trong process con và chủ động \code{fflush} trước khi \code{fork}.
+
+\vspace{0.4cm}
+\textit{Ghi chú thêm: ..............................................................................................}
+\vspace{0.6cm}
+
+\subsection*{Tuần 3 --- Thread, IPC, signal và socket}
+
+\textit{Thời gian: ..................................}
+
+Nội dung tìm hiểu: pthread, race condition, mutex, condition variable, deadlock; pipe, FIFO, message queue, shared memory, semaphore; \code{sigaction}, \code{SIGCHLD}, \code{SIGTERM} và \code{SIGHUP}; socket TCP và UDP, mô hình \code{epoll}.
+
+Phần thực hành: đo mức mất cập nhật do race condition; dựng producer--consumer bằng condition variable; so sánh năm cơ chế IPC trên cùng một bài toán truyền cấu hình; viết TCP echo server phục vụ nhiều client và cặp chương trình UDP telemetry.
+
+Kết quả: đo được 70694 lần cập nhật bị mất trên tổng 800000 khi thiếu mutex; message ưu tiên cao được message queue trả về trước dù vào sau; cùng một lệnh chạy được qua cả Unix domain socket lẫn TCP.
+
+Khó khăn và cách khắc phục: signal handler ban đầu gọi \code{printf} và đôi khi làm chương trình treo; sau khi tìm hiểu khái niệm async-signal-safe thì chuyển sang kỹ thuật self-pipe, handler chỉ ghi một byte còn xử lý thật nằm ở vòng lặp \code{epoll}.
+
+\vspace{0.4cm}
+\textit{Ghi chú thêm: ..............................................................................................}
+\vspace{0.6cm}
+
+\subsection*{Tuần 4 --- Device driver, ứng dụng AP 6 và đóng gói OpenWrt}
+
+\textit{Thời gian: ..................................}
+
+Nội dung tìm hiểu: vòng đời module kernel, \code{file\_operations}, wait queue, mutex và spinlock trong kernel, device model và procfs; profile SoftAP của MediaTek và lệnh \code{iwpriv}; procd, UCI và cách đóng gói package OpenWrt.
+
+Phần thực hành: viết character driver \code{ap6sim} mô phỏng control path của chip Wi-Fi; hoàn thiện daemon \code{apd} với \code{epoll}, thread telemetry, shared memory và xử lý signal; viết \code{apctl} và \code{apmon}; viết bộ 53 test case tự động và tài liệu đối chiếu báo cáo với mã nguồn.
+
+Kết quả: toàn bộ 53 test case đạt, không có test thất bại; module biên dịch thành công trên kernel 7.0; daemon dọn dẹp đủ socket, pid file và shared memory sau khi nhận \code{SIGTERM}.
+
+Khó khăn và cách khắc phục: module không biên dịch được do một số API kernel đã thay đổi, gồm \code{from\_timer}, \code{del\_timer\_sync}, \code{no\_llseek} và số tham số của \code{class\_create}; khắc phục bằng cách dùng macro kiểm tra \code{LINUX\_VERSION\_CODE} để chọn API theo phiên bản kernel.
+
+\vspace{0.4cm}
+\textit{Ghi chú thêm: ..............................................................................................}
+\vspace{0.6cm}
+
+\section{Kết quả đạt được}
+
+Sau quá trình thực tập, sinh viên đã hệ thống hóa được các kiến thức nền tảng cần thiết cho Embedded Linux. Trước hết, sinh viên hiểu được một chương trình C được tạo ra như thế nào, từ mã nguồn ban đầu đến executable hoặc ELF cuối cùng. Điều này giúp việc đọc log build, phân tích lỗi compiler, linker và lỗi thiếu thư viện trở nên rõ ràng hơn. Tiếp theo, sinh viên nắm được tổ chức bộ nhớ của process, vai trò của heap, stack, text, data, BSS và vùng mmap, từ đó có cơ sở phân tích các lỗi bộ nhớ thường gặp trong C.
+
+Về Linux Programming, sinh viên hiểu được ranh giới giữa user space và kernel space, vai trò của system call, cơ chế virtual memory, cách Linux quản lý process và thread, cũng như các phương thức IPC và signal. Việc tìm hiểu thêm kiến trúc UNIX giúp sinh viên liên kết file descriptor, VFS, inode, process context, cache và interrupt thành một mô hình thống nhất. Phần device driver giúp hình dung đường đi từ lời gọi user space qua VFS hoặc network stack xuống callback driver, thanh ghi I/O, DMA và phần cứng. Ngoài ra, sinh viên cũng nắm được vai trò của Git/GitLab workflow trong quản lý mã nguồn và phối hợp phát triển phần mềm.
+
+Khác với một bản tổng hợp lý thuyết, kết quả của kỳ thực tập lần này còn bao gồm một sản phẩm phần mềm cụ thể. Dự án \code{ap6-embedded-linux-project} gồm mười hai chương trình demo theo từng chương lý thuyết, một ứng dụng tích hợp ba thành phần user space là \code{apd}, \code{apctl} và \code{apmon}, một character driver phía kernel, một package OpenWrt hoàn chỉnh và bộ 53 test case tự động. Các con số kiểm chứng được nêu rải rác trong báo cáo và có thể tóm tắt lại như sau.
+
+\begin{center}
+\begin{tabular}{p{5.6cm}p{4.2cm}p{4.0cm}}
+\toprule
+\textbf{Khẳng định lý thuyết} & \textbf{Số liệu đo được} & \textbf{Mục} \\
+\midrule
+Tiền xử lý mở rộng mã nguồn & 17 dòng $\rightarrow$ 837 dòng & 2.3 \\
+Liên kết tĩnh toàn phần làm tăng kích thước & 16 KB $\rightarrow$ 785 KB & 2.3 \\
+Kernel xóa BSS về 0 khi nạp & \code{g\_bss\_uninit} = 0 & 3.3 \\
+glibc gom nhiều \code{printf} vào ít \code{write} & 51 system call cho cả chương trình & 4.3 \\
+Demand paging: RAM chỉ cấp khi chạm vào & RSS +128 KB $\rightarrow$ +65536 KB & 6.4 \\
+Mỗi trang gây đúng một page fault đầu tiên & 16384 minor fault, 0 major & 6.4 \\
+Copy-on-write tách dữ liệu cha và con & 100 so với 1000 & 7.5 \\
+Race condition làm mất cập nhật & mất 70694 / 800000 lần & 8.4 \\
+Đồng bộ đúng cho kết quả ổn định & 800000 và tổng 210 & 8.4, 8.5 \\
+Message queue tôn trọng độ ưu tiên & prio 9 được nhận trước & 9.3 \\
+Daemon dọn dẹp đủ tài nguyên khi \code{SIGTERM} & socket, pid file, shm đều được xóa & 10.6 \\
+Toàn hệ thống hoạt động đúng & 53 PASS, 0 FAIL & 17.2 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Một kết quả quan trọng khác là sinh viên đã liên hệ được các nội dung trên với boot sequence của Linux, đồng thời bước đầu làm quen với văn hóa seminar, cách báo cáo tiến độ và tác phong làm việc trong môi trường doanh nghiệp. Việc hiểu ROM code, SPL, U-Boot, kernel, Device Tree, root filesystem và init system giúp hình thành cái nhìn tổng thể về vòng đời của một hệ thống Embedded Linux, từ lúc cấp nguồn đến khi ứng dụng user space hoạt động.
+
+\section{Khó khăn và hướng phát triển}
+
+\subsection{Khó khăn trong quá trình học và cách khắc phục}
+
+Khó khăn lớn nhất trong quá trình học là các khái niệm không tồn tại độc lập. Virtual memory liên quan đến cả phần cứng MMU, page table và chính sách của kernel. Process và thread liên quan đến scheduler, tài nguyên hệ thống và đồng bộ dữ liệu. IPC liên quan đến cả hiệu năng lẫn an toàn truy cập. Boot sequence lại yêu cầu hiểu thêm đặc điểm phần cứng của SoC, SRAM, DRAM và thiết bị lưu trữ. Vì vậy, nếu chỉ đọc lý thuyết, người học dễ nhớ khái niệm nhưng khó hình dung cách chúng hoạt động trong hệ thống thật.
+
+Hướng khắc phục đã được áp dụng trong kỳ thực tập này là kết hợp đọc tài liệu với thực hành nhỏ, rồi ghép các thực hành nhỏ lại thành một ứng dụng có thật. Người học có thể tự biên dịch chương trình C qua từng giai đoạn bằng \code{gcc -E}, \code{gcc -S}, \code{gcc -c} và linking; dùng \code{readelf}, \code{objdump}, \code{nm} và \code{ldd} để quan sát executable và shared library; viết các ví dụ nhỏ về \code{fork}, \code{pthread}, \code{pipe}, \code{mmap} và \code{sigaction} để biến khái niệm thành kinh nghiệm thực tế. Bước ghép lại quan trọng không kém: chỉ khi cùng một chương trình phải xử lý đồng thời socket, thread, signal và process con thì các vấn đề như thứ tự lock, tính async-signal-safe hay thu hồi zombie mới thực sự xuất hiện.
+
+Khó khăn thứ hai mang tính kỹ thuật: tài liệu tham khảo về device driver thường mô tả các phiên bản kernel cũ, trong khi kernel thực tế đã thay đổi API. Trường hợp gặp phải trong dự án là \code{from\_timer}, \code{del\_timer\_sync}, \code{no\_llseek} và \code{class\_create}. Cách khắc phục là đối chiếu trực tiếp với kernel source đang dùng và viết macro tương thích theo \code{LINUX\_VERSION\_CODE}, thay vì cố sửa cho khớp một phiên bản duy nhất.
+
+Khó khăn thứ ba là một số lỗi chỉ xuất hiện không thường xuyên. Ví dụ điển hình trong báo cáo là mục 9.5: cùng một chương trình thiếu đồng bộ, lần chạy trong bộ kết quả này lại cho kết quả đúng hoàn toàn, trong khi trường hợp thread ở mục 8.4 mất tới 70694 lần cập nhật. Bài học rút ra là không thể dùng phép thử để chứng minh chương trình đồng bộ đúng; phép thử chỉ có thể chứng minh chương trình sai. Vì vậy trong mã sản phẩm, các quy tắc như luôn bảo vệ dữ liệu chia sẻ và luôn lấy khóa theo cùng một thứ tự phải được tuân thủ theo thiết kế, không phụ thuộc vào việc phép thử có bắt được lỗi hay không.
+
+\subsection{Hướng phát triển tiếp theo}
+
+Phần thực nghiệm của báo cáo dừng ở môi trường Linux x86\_64, nên các hạng mục sau được xác định là bước tiếp theo, xếp theo thứ tự ưu tiên.
+
+Thứ nhất là kiểm chứng phần boot sequence trên board thật: dừng autoboot qua serial console, đọc biến môi trường U-Boot, nạp kernel qua TFTP, quan sát log từ ROM code đến SPL, U-Boot, kernel và init. Đây là phần duy nhất trong báo cáo hiện chưa có thực nghiệm đi kèm.
+
+Thứ hai là nạp và kiểm chứng module \code{ap6sim} trên hệ thống có quyền quản trị, chạy đủ chu trình \code{insmod} và \code{rmmod} nhiều lần để xác nhận tính đối xứng của vòng đời driver, đồng thời kiểm tra daemon tự chuyển \code{backend} từ \code{simulated} sang \code{ioctl} thật.
+
+Thứ ba là cross-compile package \code{ap6ctl} bằng OpenWrt Build System và cài lên một thiết bị thật, qua đó kiểm chứng phần liên kết thư viện, kích thước binary trên flash và tích hợp với procd cùng UCI.
+
+Thứ tư là thay backend mô phỏng bằng control path thật của MediaTek, gồm profile SoftAP và các lệnh \code{iwpriv}, rồi bổ sung test case cho các tính năng nâng cao như ACS, MBSSID, PMF và ACL.
+
+Cuối cùng, các nội dung porting board, xây dựng root filesystem bằng Buildroot hoặc Yocto, tối ưu thời gian boot và cơ chế cập nhật firmware an toàn là hướng học tiếp sau khi bốn hạng mục trên hoàn tất.
+
+\section{Kết luận}
+
+Basic C và Linux Programming là nền tảng quan trọng để học Embedded Linux. Từ quá trình biên dịch C, người học hiểu cách source code trở thành chương trình chạy trên CPU. Từ memory layout và linking, người học hiểu cách chương trình được nạp, chia vùng bộ nhớ và phụ thuộc vào thư viện. Từ kiến trúc UNIX/Linux kernel, system call, VFS, inode và virtual memory, người học hiểu cách kernel tổ chức tài nguyên và tạo ranh giới giữa user space với kernel space. Từ process, thread, IPC và signal, người học có khả năng xây dựng ứng dụng Linux nhiều tác vụ, có đồng bộ và có giao tiếp dữ liệu. Từ device driver, người học hiểu thêm cách kernel quản lý thiết bị, interrupt, I/O memory, DMA và concurrency. Từ socket programming, OpenWrt và ứng dụng trên MediaTek AP 6, người học có thêm góc nhìn thực tế về phát triển ứng dụng mạng trên thiết bị nhúng. Từ Git workflow, người học có kỹ năng quản lý mã nguồn trong môi trường phát triển chuyên nghiệp.
+
+Điểm rút ra rõ nhất sau khi ghép phần lý thuyết với phần thực nghiệm là các khái niệm này không thể học tách rời. Một lệnh \code{APPLY} tưởng như đơn giản trong công cụ quản lý AP thực chất đi qua socket, epoll, kiểm tra tham số, \code{fork}, \code{exec}, \code{SIGCHLD}, \code{waitpid}, rồi mới xuống driver bằng \code{ioctl}; nếu thiếu hiểu biết ở bất kỳ mắt xích nào, lỗi phát sinh sẽ rất khó khoanh vùng. Ngược lại, khi đã nhìn được cả chuỗi, việc debug trở thành quá trình đi theo đường dữ liệu từ user space xuống kernel và ngược lại, thay vì thử lệnh ngẫu nhiên.
+
+Khi đặt trong bối cảnh Embedded Linux, các kiến thức này giúp giải thích cách ứng dụng user space giao tiếp với driver, cách daemon được init system khởi động và giám sát, cách chương trình được cross-compile, cách root filesystem chứa thư viện cần thiết và cách hệ thống đi từ bootloader đến kernel rồi đến user space. Đây là nền tảng cần thiết trước khi tiếp tục học các chủ đề nâng cao như U-Boot, Device Tree, Linux kernel driver, Buildroot, Yocto và tối ưu hệ thống nhúng.
+
+\appendix
+\section{Phụ lục: cách chạy lại toàn bộ kết quả}
+
+Mọi kết quả trích dẫn trong báo cáo có thể được sinh lại từ mã nguồn đi kèm bằng các lệnh sau.
+
+\begin{lstlisting}[caption={Các lệnh chính của dự án}]
+make                 # build apd, apctl, apmon va 12 demo
+make test            # chay 53 test case tu dong
+make stages          # xem tung giai doan bien dich (muc 2.3)
+make module          # build kernel module ap6sim (can kernel headers)
+make run             # chay thu daemon o foreground
+
+sh scripts/collect_results.sh    # sinh lai docs/ket-qua-chay.txt
+
+./build/demos/memlayout          # muc 3.3
+./build/demos/syscall_demo       # muc 4.3
+./build/demos/vm_demo            # muc 6.4
+./build/demos/process_demo       # muc 7.5
+./build/demos/thread_demo        # muc 8.4
+./build/demos/pipe_fifo_demo     # muc 9.2
+./build/demos/mqueue_demo        # muc 9.3
+./build/demos/shm_sem_demo       # muc 9.5
+./build/demos/signal_demo        # muc 10.5
+./build/demos/tcp_echo_server    # muc 13.4
+./build/demos/udp_telemetry      # muc 13.4
+\end{lstlisting}
+
+Cấu trúc thư mục của dự án và bảng đối chiếu đầy đủ giữa từng mục báo cáo, đoạn mã tương ứng và lệnh kiểm chứng được trình bày trong \code{README.md} và \code{docs/doi-chieu-bao-cao.md}.
+
+\end{document}

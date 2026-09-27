@@ -1,0 +1,72 @@
+#!/bin/sh /etc/rc.common
+# ap6d.init - init script kieu procd cho OpenWrt (Bao cao muc 14.2).
+#
+# procd la init + process supervisor cua OpenWrt, thay cho systemd tren
+# desktop/server. Nhung khai niem van giong nhau: service co vong doi, co
+# chinh sach restart, co log va co cach nap lai cau hinh (muc 7.5).
+#
+#   /etc/init.d/ap6d enable    # bat khoi dong cung he thong
+#   /etc/init.d/ap6d start|stop|restart|reload
+#   logread -f | grep apd      # xem log (apd ghi ra syslog khi -d)
+
+START=95
+STOP=10
+USE_PROCD=1
+
+PROG=/usr/sbin/apd
+PROFILE=/etc/ap6/ap6.dat
+SOCKET=/var/run/apd.sock
+PIDFILE=/var/run/apd.pid
+APPLY=/usr/share/ap6/apply_profile.sh
+
+start_service() {
+	local enabled tcp_port
+
+	# Doc cau hinh tu UCI (/etc/config/ap6) - cach chuan cua OpenWrt
+	config_load ap6
+	config_get_bool enabled main enabled 1
+	config_get tcp_port main tcp_port 0
+
+	[ "$enabled" -eq 0 ] && return 0
+
+	procd_open_instance
+	procd_set_param command "$PROG" \
+		-p "$PROFILE" \
+		-s "$SOCKET" \
+		-i "$PIDFILE" \
+		-S "$APPLY" \
+		-t "$tcp_port"
+
+	# procd tu giam sat va restart neu process chet (khong dung -d:
+	# de procd quan ly process o foreground la cach lam dung).
+	procd_set_param respawn 3600 5 5
+	procd_set_param stdout 1
+	procd_set_param stderr 1
+
+	# Theo doi file cau hinh: procd goi reload khi UCI thay doi
+	procd_set_param file "$PROFILE"
+	procd_close_instance
+}
+
+reload_service() {
+	# SIGHUP -> apd nap lai profile ma khong restart (muc 10.5)
+	local pid
+	pid=$(cat "$PIDFILE" 2>/dev/null)
+	if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+		echo "ap6d: gui SIGHUP toi pid $pid de nap lai cau hinh"
+		kill -HUP "$pid"
+	else
+		restart
+	fi
+}
+
+service_triggers() {
+	# Tu dong reload khi 'uci commit ap6' duoc goi
+	procd_add_reload_trigger "ap6"
+}
+
+stop_service() {
+	# procd gui SIGTERM truoc, cho daemon don dep (dong socket, ghi cau
+	# hinh, giai phong shm), chi dung SIGKILL neu khong phan hoi.
+	echo "ap6d: dung service"
+}

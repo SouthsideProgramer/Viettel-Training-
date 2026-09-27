@@ -1,0 +1,34 @@
+# ap6.dat - profile SoftAP theo phong cach MediaTek (Bao cao muc 16.2, 16.3)
+# Cu phap: Key=Value, dong bat dau bang '#' la chu thich.
+# Day la cac tham so duoc driver doc khi interface duoc khoi tao.
+
+# --- Nhom 1: vung quoc gia va kenh tan so ---
+CountryRegion=5
+CountryRegionABand=7
+CountryCode=VN
+Channel=6
+AutoChannelSelect=0
+
+# --- Nhom 2: nhan dang mang va che do Wi-Fi ---
+SSID=Viettel_AP6
+BssidNum=1
+WirelessMode=9
+HideSSID=0
+
+# --- Nhom 3: hieu nang va QoS ---
+BeaconPeriod=100
+DtimPeriod=1
+TxPower=100
+TxBurst=1
+WmmCapable=1
+NoForwarding=0
+NoForwardingBTNBSSID=0
+
+# --- Nhom 4: bao mat va chong flooding ---
+AuthMode=WPA2PSK
+EncrypType=AES
+WPAPSK=ThucTap2026
+PMFMFPC=1
+AuthFloodThreshold=32
+AssocReqFloodThreshold=32
+DeauthFloodThreshold=32
